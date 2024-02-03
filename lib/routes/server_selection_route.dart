@@ -15,6 +15,10 @@ class ServerSelectionRoute extends StatefulWidget {
 }
 
 class _ServerSelectionRouteState extends State<ServerSelectionRoute> {
+  static const plusColor = Colors.purpleAccent;
+  static const freeColor = Colors.green;
+  static const ratingGoodColor = Colors.greenAccent;
+  static const ratingBadColor = Colors.red;
   late AppLocalizations localizations;
   late Map<String, String> localizedCity;
   bool showAllServers = false;
@@ -34,117 +38,132 @@ class _ServerSelectionRouteState extends State<ServerSelectionRoute> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white),
-                    borderRadius: BorderRadius.circular(20)),
-                child: Text(localizations.plusIsGreat),
-              ),
-            ),
+            _topSection(),
             const SizedBox(height: 16),
-            ...widget.servers.map(
-              (e) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                child: Card(
-                  child: ListTile(
-                    leading: SizedBox(
-                        width: 24,
-                        height: 16,
-                        child: Flag.fromString(
-                          h.extractCountry(e.address).toString(),
-                          borderRadius: 4,
-                        )),
-                    title: Text(
-                        "${h.extractCountry(e.address)?.toUpperCase()} / ${localizedCity[h.extractCity(e.address)]}"),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color:
-                                  e.plus ? Colors.purpleAccent : Colors.green,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
-                            child: Text(
-                              e.plus
-                                  ? localizations.plusServer
-                                  : localizations.freeServer,
-                              style: GoogleFonts.roboto().copyWith(
-                                fontSize: 16,
-                                color:
-                                    e.plus ? Colors.purpleAccent : Colors.green,
-                              ),
-                            ),
-                          ),
-                        ),
-                        if (e.rating != null) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Color.lerp(Colors.greenAccent,
-                                    Colors.red, (e.rating!.toDouble() / 100))!,
-                              ),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 2),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    "%${e.rating!.toString()}",
-                                    style: GoogleFonts.roboto().copyWith(
-                                      fontSize: 16,
-                                      color: Color.lerp(
-                                          Colors.greenAccent,
-                                          Colors.red,
-                                          (e.rating!.toDouble() / 100))!,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Icon(Icons.network_cell,
-                                      color: Color.lerp(
-                                          Colors.greenAccent,
-                                          Colors.red,
-                                          (e.rating!.toDouble() / 100))!),
-                                ],
-                              ),
-                            ),
-                          )
-                        ],
-                      ],
-                    ),
-                    onTap: () {
-                      Navigator.pop(context, e);
-                    },
-                  ),
-                ),
-              ),
-            ),
+            ...widget.servers.map(_serverListTile),
             const SizedBox(height: 8),
-            CheckboxListTile(
-              title: Text(localizations.showAllServers),
-              value: showAllServers,
-              onChanged: (value) {
-                if (value == null) return;
-                setState(() {
-                  showAllServers = value;
-                });
-              },
-            ),
+            _bottomSection(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _topSection() {
+    //TODO: Change for free users
+    final topText = localizations.plusIsGreat;
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+            border: Border.all(color: Colors.white),
+            borderRadius: BorderRadius.circular(20)),
+        child: Text(topText),
+      ),
+    );
+  }
+
+  Widget _serverListTile(ServerInfo e) {
+    final country = h.extractCountry(e.address)?.toUpperCase() ?? "";
+    final city = localizedCity[h.extractCity(e.address)];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      child: Card(
+        child: ListTile(
+          leading: SizedBox(
+              width: 24,
+              height: 16,
+              child: Flag.fromString(
+                country,
+                borderRadius: 4,
+              )),
+          title: Text("$country / $city"),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _premiumStatusChip(e),
+              if (e.rating != null) ...[
+                const SizedBox(width: 8),
+                _ratingStatusChip(e),
+              ],
+            ],
+          ),
+          onTap: () {
+            Navigator.pop(context, e);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _premiumStatusChip(ServerInfo e) {
+    final chipColor = e.plus ? plusColor : freeColor;
+    final chipText =
+        e.plus ? localizations.plusServer : localizations.freeServer;
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: chipColor,
+        ),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        child: Text(
+          chipText,
+          style: GoogleFonts.roboto().copyWith(
+            fontSize: 16,
+            color: chipColor,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _ratingStatusChip(ServerInfo e) {
+    final chipColor = Color.lerp(
+        ratingGoodColor, ratingBadColor, (e.rating!.toDouble() / 100))!;
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: chipColor,
+        ),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        child: Row(
+          children: [
+            Text(
+              "%${e.rating!}",
+              style: GoogleFonts.roboto().copyWith(
+                fontSize: 16,
+                color: chipColor,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.network_cell, color: chipColor),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _bottomSection() {
+    return CheckboxListTile(
+      title: Text(localizations.showAllServers),
+      value: showAllServers,
+      onChanged: (value) {
+        if (value == null) return;
+        setState(() {
+          showAllServers = value;
+        });
+      },
     );
   }
 }

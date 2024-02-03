@@ -98,7 +98,8 @@ class _NewsRouteState extends State<NewsRoute> {
           }
         } else if (node.toString().contains("<html b>")) {
           textSpanChildren.add(TextSpan(
-              text: node.text, style: const TextStyle(fontWeight: FontWeight.bold)));
+              text: node.text,
+              style: const TextStyle(fontWeight: FontWeight.bold)));
         } else if (node.toString().contains("<html a>")) {
           textSpanChildren.add(
             TextSpan(
