@@ -1,0 +1,38 @@
+name: geph_fgui
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.2.3 <4.0.0'
+
+dependencies:
+  connectivity_plus: ^5.0.2
+  flag: ^7.0.0
+  flex_color_scheme: ^7.3.1
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  google_fonts: ^6.1.0
+  html: ^0.15.4
+  http: ^1.2.0
+  intl: any
+  path_provider: ^2.1.2
+  provider: ^6.1.1
+  shared_preferences: ^2.2.2
+  url_launcher: ^6.2.4
+  workmanager: ^0.5.2
+  xml: ^6.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/
