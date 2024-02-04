@@ -53,7 +53,7 @@ enum ServiceState {
 class SettingsProvider extends ChangeNotifier {
   SettingsProvider._();
 
-  static SettingsProvider? instance;
+  static SettingsProvider? _instance;
   late final SharedPreferences _sharedPreferences;
   ThemeMode get themeMode => _themeMode;
   Locale? get locale => _locale;
@@ -67,7 +67,6 @@ class SettingsProvider extends ChangeNotifier {
   Protocol get protocol => _protocol;
   AccountData? get accountData => _accountData;
   ServerInfo? get selectedServer => _selectedServer;
-  List<String> get excludedApps => _excludedApps;
   int get newsLoadedNumber => _newsLoadedNumber;
   String get rssFeed => _rssFeed;
   bool get lastNewsFetched => _lastNewsFetched;
@@ -88,7 +87,6 @@ class SettingsProvider extends ChangeNotifier {
   Protocol _protocol = Protocol.auto;
   AccountData? _accountData;
   ServerInfo? _selectedServer;
-  final List<String> _excludedApps = [];
   int _newsLoadedNumber = 0;
   String _rssFeed = "";
   bool _lastNewsFetched = false;
@@ -100,7 +98,18 @@ class SettingsProvider extends ChangeNotifier {
   bool _binaryInstalled = false;
   String _exportPath = "";
 
-  Future<void> initialize({SharedPreferences? sp}) async {
+  static Future<SettingsProvider> instance({SharedPreferences? sp}) async {
+    if (_instance != null) {
+      return _instance!;
+    }
+    final settings = SettingsProvider._();
+    await settings._initialize(sp: sp);
+    _instance = settings;
+    return _instance!;
+  }
+
+  Future<void> _initialize({SharedPreferences? sp}) async {
+    if (_instance != null) return;
     _sharedPreferences = sp ?? await SharedPreferences.getInstance();
     //TODO: Delete this in prod after tests
     // await _sharedPreferences.clear();
@@ -126,7 +135,8 @@ class SettingsProvider extends ChangeNotifier {
     _locale = _getLocale();
     _rssFile = await _getRssFile();
     _rssFeed = await _getRssFeed();
-    _binaryInstalled = _sharedPreferences.getBool(_binaryInstalledKey) ?? false;
+    _binaryInstalled =
+        _sharedPreferences.getBool(_binaryInstalledKey) ?? _binaryInstalled;
     _exportPath = await _getExportPath();
 
     _serviceState = _getServiceState();
@@ -159,8 +169,8 @@ class SettingsProvider extends ChangeNotifier {
 
   RoutingMode _getRoutingMode() {
     final currentRoutingMode = _sharedPreferences.getString(_routingModeKey) ??
-        RoutingMode.auto.toString();
-    RoutingMode response = RoutingMode.auto;
+        _routingMode.toString();
+    RoutingMode response = _routingMode;
 
     if (currentRoutingMode == RoutingMode.bridges.toString()) {
       response = RoutingMode.bridges;
@@ -170,8 +180,8 @@ class SettingsProvider extends ChangeNotifier {
 
   Protocol _getProtocol() {
     final currentProtocol =
-        _sharedPreferences.getString(_protocolKey) ?? Protocol.auto.toString();
-    Protocol response = Protocol.auto;
+        _sharedPreferences.getString(_protocolKey) ?? _protocol.toString();
+    Protocol response = _protocol;
 
     if (currentProtocol == Protocol.udp.toString()) {
       response = Protocol.udp;
@@ -182,9 +192,9 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   ThemeMode _getThemeMode() {
-    final currentTheme = _sharedPreferences.getString(_themeModeKey) ??
-        ThemeMode.system.toString();
-    ThemeMode response = ThemeMode.system;
+    final currentTheme =
+        _sharedPreferences.getString(_themeModeKey) ?? _themeMode.toString();
+    ThemeMode response = _themeMode;
 
     if (currentTheme == ThemeMode.light.toString()) {
       response = ThemeMode.light;
@@ -226,7 +236,7 @@ class SettingsProvider extends ChangeNotifier {
     final String exportPath;
     final docDir = await getApplicationDocumentsDirectory();
     if (Platform.isWindows) {
-      exportPath = "${docDir.path}\\exportd_log.txt";
+      exportPath = "${docDir.path}\\exported_log.txt";
     } else {
       exportPath = "${docDir.path}/exported_log.txt";
     }
@@ -242,15 +252,15 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   Future<File> _getLogFile() async {
-    final String logPath;
+    final String addedLogPath;
     if (Platform.isWindows) {
-      logPath = "\\$_logFileName";
+      addedLogPath = "\\$_logFileName";
     } else {
-      logPath = "/$_logFileName";
+      addedLogPath = "/$_logFileName";
     }
 
     final docDirectory = await getApplicationSupportDirectory();
-    return File(docDirectory.path + logPath);
+    return File(docDirectory.path + addedLogPath);
   }
 
   Future<String> _loadLog() async {
@@ -394,11 +404,5 @@ class SettingsProvider extends ChangeNotifier {
     await _sharedPreferences.setString(_themeModeKey, value.toString());
     _themeMode = value;
     notifyListeners();
-  }
-
-  factory SettingsProvider() {
-    if (instance != null) return instance!;
-    instance = SettingsProvider._();
-    return instance!;
   }
 }

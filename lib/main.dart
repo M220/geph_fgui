@@ -9,11 +9,10 @@ import 'constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final settingsProvider = SettingsProvider();
-  await settingsProvider.initialize();
+  final settingsProvider = await SettingsProvider.instance();
 
-  runApp(ChangeNotifierProvider(
-    create: (_) => settingsProvider,
+  runApp(ChangeNotifierProvider.value(
+    value: settingsProvider,
     child: const MainApp(),
   ));
 }
