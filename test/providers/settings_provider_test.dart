@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geph_fgui/data/account_data.dart';
+import 'package:geph_fgui/data/server_info.dart';
 import 'package:geph_fgui/providers/settings_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
@@ -18,14 +19,28 @@ void main() {
     setUpAll(() async {
       PathProviderPlatform.instance = FakePathProviderPlatform();
       final appSupportPath = await getApplicationSupportDirectory();
-      final logFile = File("${appSupportPath.path}/log.txt");
-      final rssFile = File("${appSupportPath.path}/rss.txt");
+      final appDocumentsPath = await getApplicationDocumentsDirectory();
+      final File logFile;
+      final File rssFile;
+      final File exportedFile;
+      if (Platform.isWindows) {
+        logFile = File("${appSupportPath.path}\\log.txt");
+        rssFile = File("${appSupportPath.path}\\rss.txt");
+        exportedFile = File("${appDocumentsPath.path}\\exported_log.txt");
+      } else {
+        logFile = File("${appSupportPath.path}/log.txt");
+        rssFile = File("${appSupportPath.path}/rss.txt");
+        exportedFile = File("${appDocumentsPath.path}/exported_log.txt");
+      }
 
       if (await logFile.exists()) {
         await logFile.delete();
       }
       if (await rssFile.exists()) {
         await rssFile.delete();
+      }
+      if (await exportedFile.exists()) {
+        await exportedFile.delete();
       }
     });
 
@@ -207,5 +222,126 @@ void main() {
         AccountData(username: "MockUsername", password: "MockPassword");
     await settings.setAccountData(accountData);
     expect(settings.accountData, accountData);
+  });
+
+  test('setExcludeApps works', () async {
+    SharedPreferences.setMockInitialValues({});
+    final settings = await SettingsProvider.instance();
+    expect(settings.excludeApps, false);
+    await settings.setExcludeApps(true);
+    expect(settings.excludeApps, true);
+    await settings.setExcludeApps(false);
+    expect(settings.excludeApps, false);
+  });
+
+  test('setSelectedServer & unsetSelectedServer works', () async {
+    SharedPreferences.setMockInitialValues({});
+    final settings = await SettingsProvider.instance();
+    expect(settings.selectedServer, null);
+    const czServer =
+        ServerInfo(address: "cz-prg-101.geph.io", plus: true, p2pAllowed: true);
+    await settings.setSelectedServer(czServer);
+    expect(settings.selectedServer, czServer);
+    await settings.unsetSelectedServer();
+    expect(settings.selectedServer, null);
+  });
+
+  test('setLastNewsFetched works', () async {
+    SharedPreferences.setMockInitialValues({});
+    final settings = await SettingsProvider.instance();
+    expect(settings.lastNewsFetched, false);
+    settings.setLastNewsFetched(true);
+    expect(settings.lastNewsFetched, true);
+    settings.setLastNewsFetched(false);
+    expect(settings.lastNewsFetched, false);
+  });
+
+  test('setBinaryInstalled works', () async {
+    SharedPreferences.setMockInitialValues({});
+    final settings = await SettingsProvider.instance();
+    expect(settings.binaryInstalled, false);
+    await settings.setBinaryInstalled(true);
+    expect(settings.binaryInstalled, true);
+    await settings.setBinaryInstalled(false);
+    expect(settings.binaryInstalled, false);
+  });
+
+  test('setNewsLoadedNumber works', () async {
+    SharedPreferences.setMockInitialValues({});
+    final settings = await SettingsProvider.instance();
+    expect(settings.newsLoadedNumber, 0);
+    await settings.setNewsLoadedNumber(10);
+    expect(settings.newsLoadedNumber, 10);
+  });
+
+  test('setNewNewsAvailable works', () async {
+    SharedPreferences.setMockInitialValues({});
+    final settings = await SettingsProvider.instance();
+    expect(settings.newNewsAvailable, false);
+    settings.setNewNewsAvailable(true);
+    expect(settings.newNewsAvailable, true);
+    settings.setNewNewsAvailable(false);
+    expect(settings.newNewsAvailable, false);
+  });
+
+  test('setRssFeed works', () async {
+    SharedPreferences.setMockInitialValues({});
+    final settings = await SettingsProvider.instance();
+    const mockData = "Mock data";
+    expect(settings.rssFeed, "");
+    await settings.setRssFeed(mockData);
+    expect(settings.rssFeed, mockData);
+  });
+
+  test('setLog works', () async {
+    SharedPreferences.setMockInitialValues({});
+    final settings = await SettingsProvider.instance();
+    const mockData = "Mock data";
+    expect(settings.log, "");
+    settings.setLog(mockData);
+    expect(settings.log, mockData);
+  });
+
+  test('writeLogFile works', () async {
+    SharedPreferences.setMockInitialValues({});
+    final settings = await SettingsProvider.instance();
+    const mockData = "Mock data";
+    settings.setLog(mockData);
+    final appSupportPath = await getApplicationSupportDirectory();
+    final File logFile;
+    if (Platform.isWindows) {
+      logFile = File("${appSupportPath.path}\\log.txt");
+    } else {
+      logFile = File("${appSupportPath.path}/log.txt");
+    }
+    settings.writeLogFile();
+    expect(await logFile.exists(), true);
+    expect(await logFile.readAsString(), mockData);
+  });
+
+  test('logout works', () async {
+    SharedPreferences.setMockInitialValues({});
+    final settings = await SettingsProvider.instance();
+    const accountData =
+        AccountData(username: "MockUsername", password: "MockPassword");
+    const czServer =
+        ServerInfo(address: "cz-prg-101.geph.io", plus: true, p2pAllowed: true);
+    await settings.setAccountData(accountData);
+    await settings.setSelectedServer(czServer);
+    await settings.logout();
+    expect(settings.accountData, null);
+    expect(settings.selectedServer, null);
+  });
+
+  test('logout works', () async {
+    SharedPreferences.setMockInitialValues({});
+    final settings = await SettingsProvider.instance();
+    const mockData = "Mock data";
+    settings.setLog(mockData);
+    final exportFile = File(settings.exportPath);
+    expect(await exportFile.exists(), false);
+    await settings.exportLogFile();
+    expect(await exportFile.exists(), true);
+    expect(await exportFile.readAsString(), mockData);
   });
 }

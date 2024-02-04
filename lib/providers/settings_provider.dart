@@ -119,14 +119,17 @@ class SettingsProvider extends ChangeNotifier {
     _autoProxy = _sharedPreferences.getBool(_autoProxyKey) ?? _autoProxy;
     _excludeApps = _sharedPreferences.getBool(_excludeAppsKey) ?? _excludeApps;
     _excludedAppsList =
-        _sharedPreferences.getStringList(_excludedAppsListKey) ?? [];
+        _sharedPreferences.getStringList(_excludedAppsListKey) ??
+            _excludedAppsList;
     _listenAllInterfaces =
         _sharedPreferences.getBool(_listenAllInterfacesKey) ??
             _listenAllInterfaces;
-    _accountData = _getAccountData();
-    _selectedServer = _getSelectedServer();
     _newsLoadedNumber =
         _sharedPreferences.getInt(_newsLoadedNumberKey) ?? _newsLoadedNumber;
+    _binaryInstalled =
+        _sharedPreferences.getBool(_binaryInstalledKey) ?? _binaryInstalled;
+    _accountData = _getAccountData();
+    _selectedServer = _getSelectedServer();
     _logFile = await _getLogFile();
     _log = await _loadLog();
     _routingMode = _getRoutingMode();
@@ -135,36 +138,45 @@ class SettingsProvider extends ChangeNotifier {
     _locale = _getLocale();
     _rssFile = await _getRssFile();
     _rssFeed = await _getRssFeed();
-    _binaryInstalled =
-        _sharedPreferences.getBool(_binaryInstalledKey) ?? _binaryInstalled;
     _exportPath = await _getExportPath();
 
     _serviceState = _getServiceState();
   }
 
-  Future<void> setBinaryInstalled(value) async {
-    await _sharedPreferences.setBool(_binaryInstalledKey, value);
-    _binaryInstalled = value;
-    notifyListeners();
+  AccountData? _getAccountData() {
+    final username = _sharedPreferences.getString(_usernameKey);
+    final password = _sharedPreferences.getString(_passwordKey);
+    if (username == null || password == null) return null;
+    return AccountData(username: username, password: password);
   }
 
-  void setNewNewsAvailable(bool value) {
-    _newNewsAvailable = value;
-    notifyListeners();
+  ServerInfo? _getSelectedServer() {
+    final address = _sharedPreferences.getString(_selectedServerAddressKey);
+    final isP2P = _sharedPreferences.getBool(_selectedServerP2PAllowedKey);
+    final isPlus = _sharedPreferences.getBool(_selectedServerPlusKey);
+
+    if (address == null || isP2P == null || isPlus == null) return null;
+    return ServerInfo(address: address, plus: isPlus, p2pAllowed: isP2P);
   }
 
-  void setLastNewsFetched(bool value) {
-    _lastNewsFetched = value;
-    notifyListeners();
+  Future<File> _getLogFile() async {
+    final String addedLogPath;
+    if (Platform.isWindows) {
+      addedLogPath = "\\$_logFileName";
+    } else {
+      addedLogPath = "/$_logFileName";
+    }
+
+    final docDirectory = await getApplicationSupportDirectory();
+    return File(docDirectory.path + addedLogPath);
   }
 
-  ServiceState _getServiceState() {
-    return ServiceState.disconnected;
-  }
-
-  void setServiceState(ServiceState value) {
-    _serviceState = value;
-    notifyListeners();
+  Future<String> _loadLog() async {
+    if (!await _logFile.exists()) {
+      await _logFile.writeAsString("", flush: true);
+    }
+    final logContent = await _logFile.readAsString();
+    return logContent;
   }
 
   RoutingMode _getRoutingMode() {
@@ -232,6 +244,14 @@ class SettingsProvider extends ChangeNotifier {
     return File(docDirectory.path + rssPath);
   }
 
+  Future<String> _getRssFeed() async {
+    if (!await _rssFile.exists()) {
+      await _rssFile.writeAsString("", flush: true);
+    }
+    final rssContent = await _rssFile.readAsString();
+    return rssContent;
+  }
+
   Future<String> _getExportPath() async {
     final String exportPath;
     final docDir = await getApplicationDocumentsDirectory();
@@ -243,32 +263,30 @@ class SettingsProvider extends ChangeNotifier {
     return exportPath;
   }
 
-  Future<String> _getRssFeed() async {
-    if (!await _rssFile.exists()) {
-      await _rssFile.writeAsString("", flush: true);
-    }
-    final rssContent = await _rssFile.readAsString();
-    return rssContent;
+  //TODO: Actual implementation
+  ServiceState _getServiceState() {
+    return ServiceState.disconnected;
   }
 
-  Future<File> _getLogFile() async {
-    final String addedLogPath;
-    if (Platform.isWindows) {
-      addedLogPath = "\\$_logFileName";
-    } else {
-      addedLogPath = "/$_logFileName";
-    }
-
-    final docDirectory = await getApplicationSupportDirectory();
-    return File(docDirectory.path + addedLogPath);
+  Future<void> setBinaryInstalled(value) async {
+    await _sharedPreferences.setBool(_binaryInstalledKey, value);
+    _binaryInstalled = value;
+    notifyListeners();
   }
 
-  Future<String> _loadLog() async {
-    if (!await _logFile.exists()) {
-      await _logFile.writeAsString("", flush: true);
-    }
-    final logContent = await _logFile.readAsString();
-    return logContent;
+  void setNewNewsAvailable(bool value) {
+    _newNewsAvailable = value;
+    notifyListeners();
+  }
+
+  void setLastNewsFetched(bool value) {
+    _lastNewsFetched = value;
+    notifyListeners();
+  }
+
+  void setServiceState(ServiceState value) {
+    _serviceState = value;
+    notifyListeners();
   }
 
   void setLog(String value) {
@@ -285,13 +303,6 @@ class SettingsProvider extends ChangeNotifier {
     await File(exportPath).writeAsString(_log, flush: true);
   }
 
-  AccountData? _getAccountData() {
-    final username = _sharedPreferences.getString(_usernameKey);
-    final password = _sharedPreferences.getString(_passwordKey);
-    if (username == null || password == null) return null;
-    return AccountData(username: username, password: password);
-  }
-
   Future<void> setAccountData(AccountData value) async {
     await _sharedPreferences.setString(_usernameKey, value.username);
     await _sharedPreferences.setString(_passwordKey, value.password);
@@ -303,17 +314,8 @@ class SettingsProvider extends ChangeNotifier {
     await _sharedPreferences.remove(_usernameKey);
     await _sharedPreferences.remove(_passwordKey);
     _accountData = null;
-    unsetSelectedServer();
+    await unsetSelectedServer();
     notifyListeners();
-  }
-
-  ServerInfo? _getSelectedServer() {
-    final address = _sharedPreferences.getString(_selectedServerAddressKey);
-    final isP2P = _sharedPreferences.getBool(_selectedServerP2PAllowedKey);
-    final isPlus = _sharedPreferences.getBool(_selectedServerPlusKey);
-
-    if (address == null || isP2P == null || isPlus == null) return null;
-    return ServerInfo(address: address, plus: isPlus, p2pAllowed: isP2P);
   }
 
   Future<void> setSelectedServer(ServerInfo value) async {
