@@ -133,7 +133,7 @@ void main() {
       final findCancelButton =
           find.widgetWithText(TextButton, localizations.cancel);
 
-      // Cancel returns nothing.
+      // Cancel returns nothing
       await widgetTester.tap(findCancelButton);
       await widgetTester.pumpAndSettle();
 

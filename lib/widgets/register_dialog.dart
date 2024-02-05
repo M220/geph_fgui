@@ -33,7 +33,7 @@ class _RegisterDialogState extends State<RegisterDialog> {
           child: Column(
             children: [
               TextFormField(
-              controller: usernameFieldController,
+                controller: usernameFieldController,
                 decoration:
                     InputDecoration(label: Text(localizations.username)),
                 validator: (value) {
@@ -43,7 +43,7 @@ class _RegisterDialogState extends State<RegisterDialog> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-              controller: passwordFieldController,
+                controller: passwordFieldController,
                 decoration:
                     InputDecoration(label: Text(localizations.password)),
                 validator: (value) {
