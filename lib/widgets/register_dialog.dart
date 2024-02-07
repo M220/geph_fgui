@@ -33,21 +33,29 @@ class _RegisterDialogState extends State<RegisterDialog> {
           child: Column(
             children: [
               TextFormField(
+                restorationId: "usernameRID",
                 controller: usernameFieldController,
                 decoration:
                     InputDecoration(label: Text(localizations.username)),
                 validator: (value) {
                   //TODO: Validation logic of username goes here
+                  if (value == null || value.isEmpty) {
+                    return "Enter your username";
+                  }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
               TextFormField(
+                restorationId: "passwordRID",
                 controller: passwordFieldController,
                 decoration:
                     InputDecoration(label: Text(localizations.password)),
                 validator: (value) {
                   //TODO: Validation logic of password goes here
+                  if (value == null || value.isEmpty) {
+                    return "Enter your password";
+                  }
                   return null;
                 },
               ),
@@ -62,9 +70,13 @@ class _RegisterDialogState extends State<RegisterDialog> {
               ),
               const SizedBox(height: 16),
               TextFormField(
+                restorationId: "captchaRID",
                 decoration: InputDecoration(label: Text(localizations.captcha)),
                 validator: (value) {
                   //TODO: Validation logic of captcha goes here
+                  if (value == null || value.isEmpty) {
+                    return "Enter the captcha";
+                  }
                   return null;
                 },
               )
