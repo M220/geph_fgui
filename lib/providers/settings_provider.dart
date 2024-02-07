@@ -108,6 +108,12 @@ class SettingsProvider extends ChangeNotifier {
     return _instance!;
   }
 
+  @override
+  void dispose() {
+    _instance = null;
+    super.dispose();
+  }
+
   Future<void> _initialize({SharedPreferences? sp}) async {
     if (_instance != null) return;
     _sharedPreferences = sp ?? await SharedPreferences.getInstance();
