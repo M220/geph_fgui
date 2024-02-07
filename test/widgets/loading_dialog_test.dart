@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geph_fgui/widgets/loading_dialog.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-//TODO: Add more accurate tests..?
 void main() {
   group("Loading Dialog", () {
     testWidgets("dialog's widgets are as expected", (widgetTester) async {
@@ -43,6 +42,7 @@ void main() {
       expect(find.descendant(of: findCenter, matching: findCPI), findsOne);
       expect(find.descendant(of: findRow, matching: findSizedBox), findsOne);
       expect(find.descendant(of: findRow, matching: findTitle), findsOne);
+      expect(widgetTester.widget<Row>(findRow).children.length, 3);
     });
   });
 }

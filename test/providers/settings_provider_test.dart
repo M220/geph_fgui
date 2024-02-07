@@ -44,6 +44,18 @@ void main() {
       }
     });
 
+    test("test for singleton", () async {
+      SharedPreferences.setMockInitialValues({});
+      final settings1 = await SettingsProvider.instance();
+      final settings2 = await SettingsProvider.instance();
+
+      expect(identical(settings1, settings2), true);
+      settings1.dispose();
+
+      final settings3 = await SettingsProvider.instance();
+      expect(identical(settings1, settings3), false);
+    });
+
     test('default values are as expected', () async {
       SharedPreferences.setMockInitialValues({});
       final settings = await SettingsProvider.instance();
