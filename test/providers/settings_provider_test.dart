@@ -54,6 +54,7 @@ void main() {
 
       final settings3 = await SettingsProvider.instance();
       expect(identical(settings1, settings3), false);
+      settings3.dispose();
     });
 
     test('default values are as expected', () async {
@@ -86,42 +87,7 @@ void main() {
       } else {
         expect(settings.exportPath, "${docPath.path}/$exportedLogFileName");
       }
-    });
-
-    testWidgets(
-        "Preferences stay default when app is launched for the first time",
-        (widgetTester) async {
-      SharedPreferences.setMockInitialValues({});
-      entry.main();
-      final settings = await SettingsProvider.instance();
-
-      await widgetTester.pumpAndSettle();
-      expect(settings.locale, null);
-      expect(settings.themeMode, ThemeMode.system);
-      expect(settings.log, "");
-      expect(settings.rssFeed, "");
-      expect(settings.protocol, Protocol.auto);
-      expect(settings.autoProxy, true);
-      expect(settings.networkVPN, false);
-      expect(settings.excludePRC, false);
-      expect(settings.excludeApps, false);
-      expect(settings.routingMode, RoutingMode.auto);
-      expect(settings.accountData, null);
-      expect(settings.serviceState, ServiceState.disconnected);
-      expect(settings.selectedServer, null);
-      expect(settings.lastNewsFetched, false);
-      expect(settings.binaryInstalled, false);
-      expect(settings.excludedAppsList, List.empty());
-      expect(settings.newsLoadedNumber, 0);
-      expect(settings.newNewsAvailable, false);
-
-      final docPath = await getApplicationDocumentsDirectory();
-      const exportedLogFileName = "exported_log.txt";
-      if (Platform.isWindows) {
-        expect(settings.exportPath, "${docPath.path}\\$exportedLogFileName");
-      } else {
-        expect(settings.exportPath, "${docPath.path}/$exportedLogFileName");
-      }
+      settings.dispose();
     });
   });
 

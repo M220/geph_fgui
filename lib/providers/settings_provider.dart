@@ -117,8 +117,6 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> _initialize({SharedPreferences? sp}) async {
     if (_instance != null) return;
     _sharedPreferences = sp ?? await SharedPreferences.getInstance();
-    //TODO: Delete this in prod after tests
-    // await _sharedPreferences.clear();
 
     _networkVPN = _sharedPreferences.getBool(_networkVPNKey) ?? _networkVPN;
     _excludePRC = _sharedPreferences.getBool(_excludePRCKey) ?? _excludePRC;
@@ -178,7 +176,7 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   Future<String> _loadLog() async {
-    if (!await _logFile.exists()) {
+    if (!(await _logFile.exists())) {
       await _logFile.writeAsString("", flush: true);
     }
     final logContent = await _logFile.readAsString();

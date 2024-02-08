@@ -1,8 +1,6 @@
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-String? extractCountry(String? address) {
-  if (address == null) return null;
-
+String? extractCountry(String address) {
   for (final subString in address.split(".")) {
     if (subString.length == 2) return subString;
 
@@ -13,9 +11,7 @@ String? extractCountry(String? address) {
   return null;
 }
 
-String? extractCity(String? address) {
-  if (address == null) return null;
-
+String? extractCity(String address) {
   for (final subString in address.split(".")) {
     if (subString.length == 3) return subString;
 

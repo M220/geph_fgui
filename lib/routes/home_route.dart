@@ -243,12 +243,12 @@ class _HomeRouteState extends State<HomeRoute> {
         ),
         RichText(
           text: TextSpan(
-            text: h.extractCountry(selectedServer?.address)?.toUpperCase(),
+            text: h.extractCountry(selectedServer!.address)?.toUpperCase(),
             style: const TextStyle(color: Colors.grey, fontSize: 32),
             children: [
               TextSpan(
                   text:
-                      " / ${localizedCity[h.extractCity(selectedServer?.address)]}",
+                      " / ${localizedCity[h.extractCity(selectedServer!.address)]}",
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.onBackground))
             ],
@@ -261,7 +261,7 @@ class _HomeRouteState extends State<HomeRoute> {
               width: 24,
               height: 16,
               child: Flag.fromString(
-                h.extractCountry(selectedServer?.address).toString(),
+                h.extractCountry(selectedServer!.address).toString(),
                 borderRadius: 4,
               ),
             ),
