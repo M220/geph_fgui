@@ -10,7 +10,6 @@ import 'package:path_provider_platform_interface/path_provider_platform_interfac
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../path_provider_test.dart';
-import 'package:geph_fgui/main.dart' as entry;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
