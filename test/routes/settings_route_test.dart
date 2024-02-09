@@ -263,52 +263,56 @@ void main() {
 
       expect(settings.protocol, Protocol.auto);
 
-      await widgetTester.scrollUntilVisible(
-          find.text(localizations.protocol), 100);
-      await widgetTester.tap(find.text(localizations.protocol));
+      final findProtocolTile = find.text(localizations.protocol);
+      final findCancelButton =
+          find.widgetWithText(TextButton, localizations.cancel);
+      final findOkButton = find.widgetWithText(TextButton, localizations.ok);
+
+      await widgetTester.scrollUntilVisible(findProtocolTile, 100);
+      await widgetTester.ensureVisible(findProtocolTile);
+      await widgetTester.pumpAndSettle();
+      await widgetTester.tap(findProtocolTile);
       await widgetTester.pump();
 
       expect(find.byType(ProtocolDialog), findsOne);
 
-      await widgetTester
-          .tap(find.widgetWithText(TextButton, localizations.cancel));
+      await widgetTester.tap(findCancelButton);
       await widgetTester.pumpAndSettle();
 
       expect(settings.protocol, Protocol.auto);
 
-      await widgetTester.tap(find.text(localizations.protocol));
+      await widgetTester.tap(findProtocolTile);
       await widgetTester.pump();
 
       await widgetTester.tap(find.text("UDP"));
       await widgetTester.pump();
-      await widgetTester.tap(find.widgetWithText(TextButton, localizations.ok));
+      await widgetTester.tap(findOkButton);
       await widgetTester.pumpAndSettle();
       expect(find.byType(ProtocolDialog), findsNothing);
       expect(settings.protocol, Protocol.udp);
 
-      await widgetTester.tap(find.text(localizations.protocol));
+      await widgetTester.tap(findProtocolTile);
       await widgetTester.pump();
 
       await widgetTester.tap(find.text("TLS"));
       await widgetTester.pump();
-      await widgetTester.tap(find.widgetWithText(TextButton, localizations.ok));
+      await widgetTester.tap(findOkButton);
       await widgetTester.pumpAndSettle();
       expect(settings.protocol, Protocol.tls);
 
-      await widgetTester.tap(find.text(localizations.protocol));
+      await widgetTester.tap(findProtocolTile);
       await widgetTester.pump();
 
-      await widgetTester
-          .tap(find.widgetWithText(TextButton, localizations.cancel));
+      await widgetTester.tap(findCancelButton);
       await widgetTester.pumpAndSettle();
       expect(settings.protocol, Protocol.tls);
 
-      await widgetTester.tap(find.text(localizations.protocol));
+      await widgetTester.tap(findProtocolTile);
       await widgetTester.pump();
 
       await widgetTester.tap(find.text(localizations.automatic.capitalize));
       await widgetTester.pump();
-      await widgetTester.tap(find.widgetWithText(TextButton, localizations.ok));
+      await widgetTester.tap(findOkButton);
       await widgetTester.pumpAndSettle();
       expect(settings.protocol, Protocol.auto);
 
@@ -348,48 +352,202 @@ void main() {
 
       expect(settings.routingMode, RoutingMode.auto);
 
-      await widgetTester.scrollUntilVisible(
-          find.text(localizations.routingMode), 150);
-      await widgetTester.tap(find.text(localizations.routingMode));
+      final findRoutingModeTile = find.text(localizations.routingMode);
+      final findCancelButton =
+          find.widgetWithText(TextButton, localizations.cancel);
+      final findOkButton = find.widgetWithText(TextButton, localizations.ok);
+
+      await widgetTester.scrollUntilVisible(findRoutingModeTile, 100);
+      await widgetTester.ensureVisible(findRoutingModeTile);
+      await widgetTester.pumpAndSettle();
+      await widgetTester.tap(findRoutingModeTile);
       await widgetTester.pump();
 
       expect(find.byType(RoutingModeDialog), findsOne);
 
-      await widgetTester
-          .tap(find.widgetWithText(TextButton, localizations.cancel));
+      await widgetTester.tap(findCancelButton);
       await widgetTester.pumpAndSettle();
 
       expect(settings.routingMode, RoutingMode.auto);
 
-      await widgetTester.tap(find.text(localizations.routingMode));
+      await widgetTester.tap(findRoutingModeTile);
       await widgetTester.pump();
 
       await widgetTester.tap(find.text(localizations.forceBridges));
       await widgetTester.pump();
-      await widgetTester.tap(find.widgetWithText(TextButton, localizations.ok));
+      await widgetTester.tap(findOkButton);
       await widgetTester.pumpAndSettle();
       expect(find.byType(RoutingModeDialog), findsNothing);
       expect(settings.routingMode, RoutingMode.bridges);
 
-      await widgetTester.tap(find.text(localizations.routingMode));
+      await widgetTester.tap(findRoutingModeTile);
       await widgetTester.pump();
 
-      await widgetTester
-          .tap(find.widgetWithText(TextButton, localizations.cancel));
+      await widgetTester.tap(findCancelButton);
       await widgetTester.pumpAndSettle();
       expect(settings.routingMode, RoutingMode.bridges);
 
-      await widgetTester.tap(find.text(localizations.routingMode));
+      await widgetTester.tap(findRoutingModeTile);
       await widgetTester.pump();
 
       await widgetTester.tap(find.text(localizations.automatic.capitalize));
       await widgetTester.pump();
-      await widgetTester.tap(find.widgetWithText(TextButton, localizations.ok));
+      await widgetTester.tap(findOkButton);
       await widgetTester.pumpAndSettle();
       expect(settings.routingMode, RoutingMode.auto);
 
-      await widgetTester.tap(find.text(localizations.protocol));
-      await widgetTester.pump();
+      settings.dispose();
+    });
+  });
+
+  testWidgets("NetworkVPN works", (widgetTester) async {
+    await widgetTester.runAsync(() async {
+      late AppLocalizations localizations;
+      SharedPreferences.setMockInitialValues({});
+      final settings = await SettingsProvider.instance();
+      final bodyWidget = MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(builder: (context) {
+          return Scaffold(
+            body: ElevatedButton(
+              onPressed: () async {
+                localizations = AppLocalizations.of(context)!;
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => ChangeNotifierProvider.value(
+                            value: settings,
+                            child: const Scaffold(body: SettingsRoute()))));
+              },
+              child: const Text("Hit"),
+            ),
+          );
+        }),
+      );
+      await widgetTester.pumpWidget(bodyWidget);
+      await widgetTester.pumpAndSettle();
+      await widgetTester.tap(find.byType(ElevatedButton));
+      await widgetTester.pumpAndSettle();
+
+      expect(settings.networkVPN, false);
+      expect(find.text(localizations.autoProxy), findsOne);
+      expect(find.text(localizations.excludePrc), findsOne);
+
+      final findGlobalVpnTile = find.text(localizations.globalVpn);
+      final findExcludePRCTile = find.text(localizations.excludePrc);
+      final findAutoProxyTile = find.text(localizations.autoProxy);
+
+      await widgetTester.ensureVisible(findGlobalVpnTile);
+      await widgetTester.tap(findGlobalVpnTile);
+      await widgetTester.pumpAndSettle();
+      expect(settings.networkVPN, true);
+      expect(findExcludePRCTile, findsNothing);
+      expect(findAutoProxyTile, findsNothing);
+
+      await widgetTester.tap(findGlobalVpnTile);
+      await widgetTester.pumpAndSettle();
+      expect(settings.networkVPN, false);
+      expect(findExcludePRCTile, findsOne);
+      expect(findAutoProxyTile, findsOne);
+
+      settings.dispose();
+    });
+  });
+
+  testWidgets("excludePRC works", (widgetTester) async {
+    await widgetTester.runAsync(() async {
+      late AppLocalizations localizations;
+      SharedPreferences.setMockInitialValues({});
+      final settings = await SettingsProvider.instance();
+      final bodyWidget = MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(builder: (context) {
+          return Scaffold(
+            body: ElevatedButton(
+              onPressed: () async {
+                localizations = AppLocalizations.of(context)!;
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => ChangeNotifierProvider.value(
+                            value: settings,
+                            child: const Scaffold(body: SettingsRoute()))));
+              },
+              child: const Text("Hit"),
+            ),
+          );
+        }),
+      );
+      await widgetTester.pumpWidget(bodyWidget);
+      await widgetTester.pumpAndSettle();
+      await widgetTester.tap(find.byType(ElevatedButton));
+      await widgetTester.pumpAndSettle();
+
+      expect(settings.excludePRC, false);
+
+      final findExcludePRCTile = find.text(localizations.excludePrc);
+
+      await widgetTester.scrollUntilVisible(findExcludePRCTile, 100);
+      await widgetTester.ensureVisible(findExcludePRCTile);
+      await widgetTester.pumpAndSettle();
+      await widgetTester.tap(findExcludePRCTile);
+      await widgetTester.pumpAndSettle();
+      expect(settings.excludePRC, true);
+
+      await widgetTester.tap(findExcludePRCTile);
+      await widgetTester.pumpAndSettle();
+      expect(settings.excludePRC, false);
+
+      settings.dispose();
+    });
+  });
+
+  testWidgets("autoProxy works", (widgetTester) async {
+    await widgetTester.runAsync(() async {
+      late AppLocalizations localizations;
+      SharedPreferences.setMockInitialValues({});
+      final settings = await SettingsProvider.instance();
+      final bodyWidget = MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(builder: (context) {
+          return Scaffold(
+            body: ElevatedButton(
+              onPressed: () async {
+                localizations = AppLocalizations.of(context)!;
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => ChangeNotifierProvider.value(
+                            value: settings,
+                            child: const Scaffold(body: SettingsRoute()))));
+              },
+              child: const Text("Hit"),
+            ),
+          );
+        }),
+      );
+      await widgetTester.pumpWidget(bodyWidget);
+      await widgetTester.pumpAndSettle();
+      await widgetTester.tap(find.byType(ElevatedButton));
+      await widgetTester.pumpAndSettle();
+
+      expect(settings.autoProxy, true);
+
+      final findAutoProxyTile = find.text(localizations.autoProxy);
+
+      await widgetTester.scrollUntilVisible(findAutoProxyTile, 100);
+      await widgetTester.ensureVisible(findAutoProxyTile);
+      await widgetTester.pumpAndSettle();
+      await widgetTester.tap(findAutoProxyTile);
+      await widgetTester.pumpAndSettle();
+      expect(settings.autoProxy, false);
+
+      await widgetTester.tap(findAutoProxyTile);
+      await widgetTester.pumpAndSettle();
+      expect(settings.autoProxy, true);
 
       settings.dispose();
     });
