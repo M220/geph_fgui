@@ -31,7 +31,7 @@ class _LanguageDialogState extends State<LanguageDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioListTile<Locale>(
-              title: const Text("English"),
+              title: Text(localizations.english),
               value: englishLocale,
               groupValue: selectedLocale,
               onChanged: setLocaleValue,

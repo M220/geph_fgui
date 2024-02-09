@@ -92,7 +92,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
                     locale: settingsProvider.locale,
                   ));
           if (!context.mounted || selectedLocale == null) return;
-          settingsProvider.setLocale(selectedLocale);
+          await settingsProvider.setLocale(selectedLocale);
         },
       ),
       ListTile(
@@ -107,7 +107,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
                   ThemeModeDialog(themeMode: settingsProvider.themeMode));
 
           if (!context.mounted || selectedThemeMode == null) return;
-          settingsProvider.setThemeMode(selectedThemeMode);
+          await settingsProvider.setThemeMode(selectedThemeMode);
         },
       ),
     ];
@@ -186,7 +186,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
 
         //TODO: Do other cleanup here
         await Future.delayed(Duration.zero, () => true);
-        settingsProvider.logout();
+        await settingsProvider.logout();
         if (!context.mounted) return;
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (_) => const LoginRoute()));
@@ -233,8 +233,8 @@ class _SettingsRouteState extends State<SettingsRoute> {
           title: Text(localizations.excludePrc),
           subtitle: Text(localizations.excludePrcBlurb),
           value: settingsProvider.excludePRC,
-          onChanged: (value) {
-            settingsProvider.setExcludePRC(value);
+          onChanged: (value) async {
+            await settingsProvider.setExcludePRC(value);
           }),
       SwitchListTile(
           contentPadding: tilesContentPadding,
@@ -242,8 +242,8 @@ class _SettingsRouteState extends State<SettingsRoute> {
           title: Text(localizations.autoProxy),
           subtitle: Text(localizations.autoProxyBlurb),
           value: settingsProvider.autoProxy,
-          onChanged: (value) {
-            settingsProvider.setAutoProxy(value);
+          onChanged: (value) async {
+            await settingsProvider.setAutoProxy(value);
           }),
     ];
 
@@ -256,8 +256,8 @@ class _SettingsRouteState extends State<SettingsRoute> {
             title: Text(localizations.excludeApps),
             subtitle: Text(localizations.excludeAppsBlurb),
             value: settingsProvider.excludeApps,
-            onChanged: (value) {
-              settingsProvider.setExcludeApps(value);
+            onChanged: (value) async {
+              await settingsProvider.setExcludeApps(value);
             }),
         SizedBox(
           height: 40,
@@ -285,8 +285,8 @@ class _SettingsRouteState extends State<SettingsRoute> {
             title: Text(localizations.globalVpn),
             subtitle: Text(localizations.globalVpnBlurb),
             value: settingsProvider.networkVPN,
-            onChanged: (value) {
-              settingsProvider.setNetworkVPN(value);
+            onChanged: (value) async {
+              await settingsProvider.setNetworkVPN(value);
             }),
         AnimatedSize(
           duration: const Duration(milliseconds: 300),
@@ -326,8 +326,8 @@ class _SettingsRouteState extends State<SettingsRoute> {
           title: Text(localizations.listenAll),
           subtitle: Text(localizations.listenAllBlurb),
           value: settingsProvider.listenAllInterfaces,
-          onChanged: (value) {
-            settingsProvider.setListenAllInterfaces(value);
+          onChanged: (value) async {
+            await settingsProvider.setListenAllInterfaces(value);
           }),
       ListTile(
         contentPadding: tilesContentPadding,
@@ -394,7 +394,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
 
           if (!context.mounted || routingMode == null) return;
 
-          settingsProvider.setRoutingMode(routingMode);
+          await settingsProvider.setRoutingMode(routingMode);
         },
       ),
       ListTile(
@@ -410,7 +410,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
 
           if (!context.mounted || protocol == null) return;
 
-          settingsProvider.setProtocol(protocol);
+          await settingsProvider.setProtocol(protocol);
         },
       ),
     ];
