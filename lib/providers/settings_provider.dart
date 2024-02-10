@@ -250,7 +250,7 @@ class SettingsProvider extends ChangeNotifier {
 
   Future<String> _getRssFeed() async {
     if (!await _rssFile.exists()) {
-      await _rssFile.writeAsString("", flush: true);
+      await _rssFile.writeAsString("<root></root>", flush: true);
     }
     final rssContent = await _rssFile.readAsString();
     return rssContent;
