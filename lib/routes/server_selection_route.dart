@@ -15,25 +15,25 @@ class ServerSelectionRoute extends StatefulWidget {
 }
 
 class _ServerSelectionRouteState extends State<ServerSelectionRoute> {
-  static const plusColor = Colors.purpleAccent;
-  static const freeColor = Colors.green;
-  static const ratingGoodColor = Colors.greenAccent;
-  static const ratingBadColor = Colors.red;
-  late AppLocalizations localizations;
-  late Map<String, String> localizedCity;
-  bool showAllServers = false;
+  static const _plusColor = Colors.purpleAccent;
+  static const _freeColor = Colors.green;
+  static const _ratingGoodColor = Colors.greenAccent;
+  static const _ratingBadColor = Colors.red;
+  late AppLocalizations _localizations;
+  late Map<String, String> _localizedCity;
+  bool _showAllServers = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    localizations = AppLocalizations.of(context)!;
-    localizedCity = h.getLocalizedCityMap(localizations);
+    _localizations = AppLocalizations.of(context)!;
+    _localizedCity = h.getLocalizedCityMap(_localizations);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(localizations.exitSelection)),
+      appBar: AppBar(title: Text(_localizations.exitSelection)),
       body: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -51,7 +51,7 @@ class _ServerSelectionRouteState extends State<ServerSelectionRoute> {
 
   Widget _topSection() {
     //TODO: Change for free users
-    final topText = localizations.plusIsGreat;
+    final topText = _localizations.plusIsGreat;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -67,7 +67,7 @@ class _ServerSelectionRouteState extends State<ServerSelectionRoute> {
 
   Widget _serverListTile(ServerInfo e) {
     final country = h.extractCountry(e.address)?.toUpperCase() ?? "";
-    final city = localizedCity[h.extractCity(e.address)];
+    final city = _localizedCity[h.extractCity(e.address)];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
@@ -100,9 +100,9 @@ class _ServerSelectionRouteState extends State<ServerSelectionRoute> {
   }
 
   Widget _premiumStatusChip(ServerInfo e) {
-    final chipColor = e.plus ? plusColor : freeColor;
+    final chipColor = e.plus ? _plusColor : _freeColor;
     final chipText =
-        e.plus ? localizations.plusServer : localizations.freeServer;
+        e.plus ? _localizations.plusServer : _localizations.freeServer;
 
     return Container(
       decoration: BoxDecoration(
@@ -126,7 +126,7 @@ class _ServerSelectionRouteState extends State<ServerSelectionRoute> {
 
   Widget _ratingStatusChip(ServerInfo e) {
     final chipColor = Color.lerp(
-        ratingGoodColor, ratingBadColor, (e.rating!.toDouble() / 100))!;
+        _ratingGoodColor, _ratingBadColor, (e.rating!.toDouble() / 100))!;
 
     return Container(
       decoration: BoxDecoration(
@@ -156,12 +156,12 @@ class _ServerSelectionRouteState extends State<ServerSelectionRoute> {
 
   Widget _bottomSection() {
     return CheckboxListTile(
-      title: Text(localizations.showAllServers),
-      value: showAllServers,
+      title: Text(_localizations.showAllServers),
+      value: _showAllServers,
       onChanged: (value) {
         if (value == null) return;
         setState(() {
-          showAllServers = value;
+          _showAllServers = value;
         });
       },
     );

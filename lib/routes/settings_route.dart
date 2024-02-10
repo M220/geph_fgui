@@ -27,12 +27,12 @@ class SettingsRoute extends StatefulWidget {
 }
 
 class _SettingsRouteState extends State<SettingsRoute> {
-  late final settingsProvider = context.watch<SettingsProvider>();
-  late AppLocalizations localizations;
-  TextStyle? titleStyle;
-  static const dialogTileTrailing = Icon(Icons.arrow_right, size: 40);
-  static const tilesContentPadding = EdgeInsets.all(8);
-  static const titlePadding = EdgeInsets.all(8);
+  late final _settingsProvider = context.watch<SettingsProvider>();
+  late AppLocalizations _localizations;
+  TextStyle? _titleStyle;
+  static const _dialogTileTrailing = Icon(Icons.arrow_right, size: 40);
+  static const _tilesContentPadding = EdgeInsets.all(8);
+  static const _titlePadding = EdgeInsets.all(8);
   static const _divider = Padding(
     padding: EdgeInsets.all(8.0),
     child: Divider(
@@ -44,8 +44,8 @@ class _SettingsRouteState extends State<SettingsRoute> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    localizations = AppLocalizations.of(context)!;
-    titleStyle = Theme.of(context).textTheme.titleLarge;
+    _localizations = AppLocalizations.of(context)!;
+    _titleStyle = Theme.of(context).textTheme.titleLarge;
   }
 
   @override
@@ -74,40 +74,40 @@ class _SettingsRouteState extends State<SettingsRoute> {
   List<Widget> _generalSectionWidgets() {
     return [
       Padding(
-        padding: titlePadding,
+        padding: _titlePadding,
         child: Text(
-          localizations.general,
-          style: titleStyle,
+          _localizations.general,
+          style: _titleStyle,
         ),
       ),
       ListTile(
-        contentPadding: tilesContentPadding,
+        contentPadding: _tilesContentPadding,
         leading: const Icon(Icons.language),
-        title: Text(localizations.language),
-        trailing: dialogTileTrailing,
+        title: Text(_localizations.language),
+        trailing: _dialogTileTrailing,
         onTap: () async {
           Locale? selectedLocale = await showDialog(
               context: context,
               builder: (_) => LanguageDialog(
-                    locale: settingsProvider.locale,
+                    locale: _settingsProvider.locale,
                   ));
           if (!context.mounted || selectedLocale == null) return;
-          await settingsProvider.setLocale(selectedLocale);
+          await _settingsProvider.setLocale(selectedLocale);
         },
       ),
       ListTile(
-        contentPadding: tilesContentPadding,
+        contentPadding: _tilesContentPadding,
         leading: const Icon(Icons.nightlight),
-        title: Text(localizations.theme),
-        trailing: dialogTileTrailing,
+        title: Text(_localizations.theme),
+        trailing: _dialogTileTrailing,
         onTap: () async {
           ThemeMode? selectedThemeMode = await showDialog(
               context: context,
               builder: (_) =>
-                  ThemeModeDialog(themeMode: settingsProvider.themeMode));
+                  ThemeModeDialog(themeMode: _settingsProvider.themeMode));
 
           if (!context.mounted || selectedThemeMode == null) return;
-          await settingsProvider.setThemeMode(selectedThemeMode);
+          await _settingsProvider.setThemeMode(selectedThemeMode);
         },
       ),
     ];
@@ -124,12 +124,12 @@ class _SettingsRouteState extends State<SettingsRoute> {
         showDialog(
             barrierDismissible: false,
             context: context,
-            builder: (_) => LoadingDialog(title: localizations.loggingOut));
+            builder: (_) => LoadingDialog(title: _localizations.loggingOut));
 
         //TODO: Do cleanup here.
         await Future.delayed(const Duration(seconds: 2));
 
-        await settingsProvider.logout();
+        await _settingsProvider.logout();
 
         if (!context.mounted) return;
         Navigator.pop(context);
@@ -137,7 +137,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
             context, MaterialPageRoute(builder: (_) => const LoginRoute()));
       },
       child: Text(
-        localizations.logout,
+        _localizations.logout,
       ),
     );
 
@@ -162,7 +162,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
             barrierDismissible: false,
             context: context,
             builder: (_) =>
-                LoadingDialog(title: localizations.deletingAccount));
+                LoadingDialog(title: _localizations.deletingAccount));
 
         final response =
             await Future.delayed(const Duration(seconds: 2), () => true);
@@ -174,12 +174,12 @@ class _SettingsRouteState extends State<SettingsRoute> {
           showDialog(
               context: context,
               builder: (_) => AlertDialog(
-                    title: Text(localizations.deleteAccountFailedTitle),
-                    content: Text(localizations.deleteAccountFailedBlurb),
+                    title: Text(_localizations.deleteAccountFailedTitle),
+                    content: Text(_localizations.deleteAccountFailedBlurb),
                     actions: [
                       TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: Text(localizations.ok)),
+                          child: Text(_localizations.ok)),
                     ],
                   ));
           return;
@@ -187,33 +187,33 @@ class _SettingsRouteState extends State<SettingsRoute> {
 
         //TODO: Do other cleanup here
         await Future.delayed(Duration.zero, () => true);
-        await settingsProvider.logout();
+        await _settingsProvider.logout();
         if (!context.mounted) return;
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (_) => const LoginRoute()));
       },
-      child: Text(localizations.delete),
+      child: Text(_localizations.delete),
     );
 
     return [
       Padding(
-        padding: titlePadding,
+        padding: _titlePadding,
         child: Text(
-          localizations.account,
-          style: titleStyle,
+          _localizations.account,
+          style: _titleStyle,
         ),
       ),
       ListTile(
-        contentPadding: tilesContentPadding,
+        contentPadding: _tilesContentPadding,
         leading: const Icon(Icons.account_circle),
-        title: Text(settingsProvider.accountData?.username ?? ""),
+        title: Text(_settingsProvider.accountData?.username ?? ""),
         trailing: logoutButton,
       ),
       ListTile(
-        contentPadding: tilesContentPadding,
+        contentPadding: _tilesContentPadding,
         leading: const Icon(Icons.delete_forever_outlined),
-        title: Text(localizations.deleteAccount),
-        subtitle: Text(localizations.deleteAccountBlurb),
+        title: Text(_localizations.deleteAccount),
+        subtitle: Text(_localizations.deleteAccountBlurb),
         trailing: deleteButton,
       ),
     ];
@@ -221,30 +221,30 @@ class _SettingsRouteState extends State<SettingsRoute> {
 
   List<Widget> _networkSectionWidgets() {
     final sectionTitle = Padding(
-      padding: titlePadding,
+      padding: _titlePadding,
       child: Text(
-        localizations.network,
-        style: titleStyle,
+        _localizations.network,
+        style: _titleStyle,
       ),
     );
     final vpnDependantWidgets = [
       SwitchListTile(
-          contentPadding: tilesContentPadding,
+          contentPadding: _tilesContentPadding,
           secondary: const Icon(Icons.fork_left),
-          title: Text(localizations.excludePrc),
-          subtitle: Text(localizations.excludePrcBlurb),
-          value: settingsProvider.excludePRC,
+          title: Text(_localizations.excludePrc),
+          subtitle: Text(_localizations.excludePrcBlurb),
+          value: _settingsProvider.excludePRC,
           onChanged: (value) async {
-            await settingsProvider.setExcludePRC(value);
+            await _settingsProvider.setExcludePRC(value);
           }),
       SwitchListTile(
-          contentPadding: tilesContentPadding,
+          contentPadding: _tilesContentPadding,
           secondary: const Icon(Icons.auto_awesome),
-          title: Text(localizations.autoProxy),
-          subtitle: Text(localizations.autoProxyBlurb),
-          value: settingsProvider.autoProxy,
+          title: Text(_localizations.autoProxy),
+          subtitle: Text(_localizations.autoProxyBlurb),
+          value: _settingsProvider.autoProxy,
           onChanged: (value) async {
-            await settingsProvider.setAutoProxy(value);
+            await _settingsProvider.setAutoProxy(value);
           }),
     ];
 
@@ -252,13 +252,13 @@ class _SettingsRouteState extends State<SettingsRoute> {
       return [
         sectionTitle,
         SwitchListTile(
-            contentPadding: tilesContentPadding,
+            contentPadding: _tilesContentPadding,
             secondary: const Icon(Icons.fork_left),
-            title: Text(localizations.excludeApps),
-            subtitle: Text(localizations.excludeAppsBlurb),
-            value: settingsProvider.excludeApps,
+            title: Text(_localizations.excludeApps),
+            subtitle: Text(_localizations.excludeAppsBlurb),
+            value: _settingsProvider.excludeApps,
             onChanged: (value) async {
-              await settingsProvider.setExcludeApps(value);
+              await _settingsProvider.setExcludeApps(value);
             }),
         SizedBox(
           height: 40,
@@ -272,7 +272,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
                     MaterialPageRoute(
                         builder: (context) => const ExcludedAppsRoute()));
               },
-              child: Text(localizations.selectExcludedApps),
+              child: Text(_localizations.selectExcludedApps),
             ),
           ),
         ),
@@ -281,13 +281,13 @@ class _SettingsRouteState extends State<SettingsRoute> {
       return [
         sectionTitle,
         SwitchListTile(
-            contentPadding: tilesContentPadding,
+            contentPadding: _tilesContentPadding,
             secondary: const Icon(Icons.mediation),
-            title: Text(localizations.globalVpn),
-            subtitle: Text(localizations.globalVpnBlurb),
-            value: settingsProvider.networkVPN,
+            title: Text(_localizations.globalVpn),
+            subtitle: Text(_localizations.globalVpnBlurb),
+            value: _settingsProvider.networkVPN,
             onChanged: (value) async {
-              await settingsProvider.setNetworkVPN(value);
+              await _settingsProvider.setNetworkVPN(value);
             }),
         AnimatedSize(
           duration: const Duration(milliseconds: 300),
@@ -295,7 +295,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (!settingsProvider.networkVPN) ...vpnDependantWidgets,
+              if (!_settingsProvider.networkVPN) ...vpnDependantWidgets,
             ],
           ),
         ),
@@ -306,10 +306,10 @@ class _SettingsRouteState extends State<SettingsRoute> {
   List<Widget> _advancedSectionWidgets() {
     return [
       Padding(
-        padding: titlePadding,
+        padding: _titlePadding,
         child: Text(
-          localizations.advanced,
-          style: titleStyle,
+          _localizations.advanced,
+          style: _titleStyle,
         ),
       ),
       Padding(
@@ -319,21 +319,21 @@ class _SettingsRouteState extends State<SettingsRoute> {
             decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey.shade700),
                 borderRadius: BorderRadius.circular(20)),
-            child: Text(localizations.advancedWarning)),
+            child: Text(_localizations.advancedWarning)),
       ),
       SwitchListTile(
-          contentPadding: tilesContentPadding,
+          contentPadding: _tilesContentPadding,
           secondary: const Icon(Icons.lan_outlined),
-          title: Text(localizations.listenAll),
-          subtitle: Text(localizations.listenAllBlurb),
-          value: settingsProvider.listenAllInterfaces,
+          title: Text(_localizations.listenAll),
+          subtitle: Text(_localizations.listenAllBlurb),
+          value: _settingsProvider.listenAllInterfaces,
           onChanged: (value) async {
-            await settingsProvider.setListenAllInterfaces(value);
+            await _settingsProvider.setListenAllInterfaces(value);
           }),
       ListTile(
-        contentPadding: tilesContentPadding,
+        contentPadding: _tilesContentPadding,
         leading: const Icon(Icons.power),
-        title: Text(localizations.listeningPorts),
+        title: Text(_localizations.listeningPorts),
         trailing: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -382,36 +382,36 @@ class _SettingsRouteState extends State<SettingsRoute> {
         ),
       ),
       ListTile(
-        contentPadding: tilesContentPadding,
+        contentPadding: _tilesContentPadding,
         leading: const Icon(Icons.network_cell),
-        title: Text(localizations.routingMode),
-        trailing: dialogTileTrailing,
+        title: Text(_localizations.routingMode),
+        trailing: _dialogTileTrailing,
         onTap: () async {
           final RoutingMode? routingMode = await showDialog(
               context: context,
               builder: (_) => RoutingModeDialog(
-                    routingMode: settingsProvider.routingMode,
+                    routingMode: _settingsProvider.routingMode,
                   ));
 
           if (!context.mounted || routingMode == null) return;
 
-          await settingsProvider.setRoutingMode(routingMode);
+          await _settingsProvider.setRoutingMode(routingMode);
         },
       ),
       ListTile(
-        contentPadding: tilesContentPadding,
+        contentPadding: _tilesContentPadding,
         leading: const Icon(Icons.network_ping),
-        title: Text(localizations.protocol),
-        trailing: dialogTileTrailing,
+        title: Text(_localizations.protocol),
+        trailing: _dialogTileTrailing,
         onTap: () async {
           final Protocol? protocol = await showDialog(
               context: context,
               builder: (_) =>
-                  ProtocolDialog(protocol: settingsProvider.protocol));
+                  ProtocolDialog(protocol: _settingsProvider.protocol));
 
           if (!context.mounted || protocol == null) return;
 
-          await settingsProvider.setProtocol(protocol);
+          await _settingsProvider.setProtocol(protocol);
         },
       ),
     ];
@@ -420,27 +420,27 @@ class _SettingsRouteState extends State<SettingsRoute> {
   List<Widget> _debugSectionWidgets() {
     return [
       Padding(
-        padding: titlePadding,
+        padding: _titlePadding,
         child: Text(
-          localizations.debug,
-          style: titleStyle,
+          _localizations.debug,
+          style: _titleStyle,
         ),
       ),
       ListTile(
-        contentPadding: tilesContentPadding,
+        contentPadding: _tilesContentPadding,
         leading: const Icon(Icons.bug_report),
-        title: Text(localizations.debugPack),
-        subtitle: Text(localizations.debugPackBlurb),
-        trailing: dialogTileTrailing,
+        title: Text(_localizations.debugPack),
+        subtitle: Text(_localizations.debugPackBlurb),
+        trailing: _dialogTileTrailing,
         onTap: () async {
           showDialog(
               barrierDismissible: false,
               context: context,
               builder: (_) =>
-                  LoadingDialog(title: localizations.exportingDebug));
+                  LoadingDialog(title: _localizations.exportingDebug));
 
           await Future.delayed(const Duration(seconds: 3));
-          await settingsProvider.exportLogFile();
+          await _settingsProvider.exportLogFile();
 
           if (context.mounted) {
             Navigator.pop(context);
@@ -448,7 +448,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
               ..clearSnackBars()
               ..showSnackBar(SnackBar(
                   content: Text(
-                "${localizations.debugExportedTo} ${settingsProvider.exportPath}",
+                "${_localizations.debugExportedTo} ${_settingsProvider.exportPath}",
                 style: TextStyle(
                     color: Colors.green.shade700,
                     fontSize: 16,
@@ -463,10 +463,10 @@ class _SettingsRouteState extends State<SettingsRoute> {
   List<Widget> _aboutSectionWidgets() {
     return [
       Padding(
-        padding: titlePadding,
+        padding: _titlePadding,
         child: Text(
-          localizations.about,
-          style: titleStyle,
+          _localizations.about,
+          style: _titleStyle,
         ),
       ),
       Padding(
@@ -483,7 +483,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
                     }
                   },
                   icon: const Icon(Icons.telegram),
-                  label: Text(localizations.news)),
+                  label: Text(_localizations.news)),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -495,7 +495,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
                     }
                   },
                   icon: const Icon(Icons.forum),
-                  label: Text(localizations.forum)),
+                  label: Text(_localizations.forum)),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -507,7 +507,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
                     }
                   },
                   icon: const Icon(Icons.code),
-                  label: Text(localizations.github)),
+                  label: Text(_localizations.github)),
             ),
           ],
         ),

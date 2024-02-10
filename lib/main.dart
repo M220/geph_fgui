@@ -25,20 +25,20 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  late final settings = context.watch<SettingsProvider>();
-  late final account = context.read<SettingsProvider>().accountData;
+  late final _settings = context.watch<SettingsProvider>();
+  late final _account = context.read<SettingsProvider>().accountData;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: appLightTheme,
       darkTheme: appDarkTheme,
-      themeMode: settings.themeMode,
+      themeMode: _settings.themeMode,
       onGenerateTitle: (context) => AppLocalizations.of(context)!.geph,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      locale: settings.locale,
-      home: account != null ? const LandingRoute() : const LoginRoute(),
+      locale: _settings.locale,
+      home: _account != null ? const LandingRoute() : const LoginRoute(),
     );
   }
 }

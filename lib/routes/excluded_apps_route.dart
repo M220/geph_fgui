@@ -9,19 +9,19 @@ class ExcludedAppsRoute extends StatefulWidget {
 }
 
 class _ExcludedAppsRouteState extends State<ExcludedAppsRoute> {
-  late AppLocalizations localizations;
+  late AppLocalizations _localizations;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    localizations = AppLocalizations.of(context)!;
+    _localizations = AppLocalizations.of(context)!;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(localizations.selectExcludedApps),
+        title: Text(_localizations.selectExcludedApps),
       ),
       body: FutureBuilder(
           future: Future.delayed(const Duration(seconds: 2), () => ""),

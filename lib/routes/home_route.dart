@@ -20,18 +20,18 @@ class HomeRoute extends StatefulWidget {
 }
 
 class _HomeRouteState extends State<HomeRoute> {
-  late final settingsProvider = context.watch<SettingsProvider>();
-  late AppLocalizations localizations;
-  late Map<String, String> localizedCity;
-  late ServerInfo? selectedServer;
-  int remainingDays = 150;
+  late final _settingsProvider = context.watch<SettingsProvider>();
+  late AppLocalizations _localizations;
+  late Map<String, String> _localizedCity;
+  late ServerInfo? _selectedServer;
+  final int _remainingDays = 150;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    localizations = AppLocalizations.of(context)!;
-    localizedCity = h.getLocalizedCityMap(localizations);
-    selectedServer = settingsProvider.selectedServer;
+    _localizations = AppLocalizations.of(context)!;
+    _localizedCity = h.getLocalizedCityMap(_localizations);
+    _selectedServer = _settingsProvider.selectedServer;
   }
 
   @override
@@ -101,10 +101,10 @@ class _HomeRouteState extends State<HomeRoute> {
                 child: RichText(
                   text: TextSpan(
                     style: Theme.of(context).textTheme.titleSmall,
-                    text: "${localizations.remainingDays}: ",
+                    text: "${_localizations.remainingDays}: ",
                     children: [
                       TextSpan(
-                        text: remainingDays.toString(),
+                        text: _remainingDays.toString(),
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -119,22 +119,22 @@ class _HomeRouteState extends State<HomeRoute> {
           style: ButtonStyle(
               backgroundColor: MaterialStatePropertyAll(Colors.blue.shade800),
               foregroundColor: const MaterialStatePropertyAll(Colors.white)),
-          child: Text(localizations.extend),
+          child: Text(_localizations.extend),
         ),
       )
     ];
   }
 
   List<Widget> _middleSectionWidgets() {
-    if (selectedServer == null) {
+    if (_selectedServer == null) {
       Future.delayed(const Duration(seconds: 3), () {
-        settingsProvider.setSelectedServer(const ServerInfo(
+        _settingsProvider.setSelectedServer(const ServerInfo(
             address: "1.waw.pl.ngexits.geph.io",
             plus: false,
             p2pAllowed: true));
       });
 
-      return [Text("${localizations.useAutomatic}...")];
+      return [Text("${_localizations.useAutomatic}...")];
     } else {
       final plusChip = Container(
         decoration: BoxDecoration(
@@ -146,7 +146,7 @@ class _HomeRouteState extends State<HomeRoute> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           child: Text(
-            localizations.plusServer,
+            _localizations.plusServer,
             style: GoogleFonts.roboto().copyWith(
               fontSize: 16,
               color: Colors.purpleAccent,
@@ -165,7 +165,7 @@ class _HomeRouteState extends State<HomeRoute> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           child: Text(
-            localizations.freeServer,
+            _localizations.freeServer,
             style: GoogleFonts.roboto().copyWith(
               fontSize: 16,
               color: Colors.green,
@@ -184,7 +184,7 @@ class _HomeRouteState extends State<HomeRoute> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           child: Text(
-            localizations.p2pYes,
+            _localizations.p2pYes,
             style: GoogleFonts.roboto().copyWith(
               fontSize: 16,
               color: Colors.green,
@@ -203,7 +203,7 @@ class _HomeRouteState extends State<HomeRoute> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           child: Text(
-            localizations.p2pNo,
+            _localizations.p2pNo,
             style: GoogleFonts.roboto().copyWith(
               fontSize: 16,
               color: Colors.red,
@@ -213,9 +213,9 @@ class _HomeRouteState extends State<HomeRoute> {
       );
 
       final serverPremiumStatusChip =
-          selectedServer!.plus ? plusChip : freeChip;
+          _selectedServer!.plus ? plusChip : freeChip;
       final serverP2PStatusChip =
-          selectedServer!.p2pAllowed ? p2pYesChip : p2pNoChip;
+          _selectedServer!.p2pAllowed ? p2pYesChip : p2pNoChip;
 
       return [
         Row(
@@ -223,19 +223,20 @@ class _HomeRouteState extends State<HomeRoute> {
           children: [
             Icon(
               Icons.public_rounded,
-              color: settingsProvider.serviceState == ServiceState.connected
+              color: _settingsProvider.serviceState == ServiceState.connected
                   ? Colors.green
                   : Colors.red,
             ),
             const SizedBox(width: 4),
             Text(
-              settingsProvider.serviceState == ServiceState.connected
-                  ? localizations.connected.toUpperCase()
-                  : localizations.disconnect.toUpperCase(),
+              _settingsProvider.serviceState == ServiceState.connected
+                  ? _localizations.connected.toUpperCase()
+                  : _localizations.disconnect.toUpperCase(),
               style: TextStyle(
-                  color: settingsProvider.serviceState == ServiceState.connected
-                      ? Colors.green
-                      : Colors.red,
+                  color:
+                      _settingsProvider.serviceState == ServiceState.connected
+                          ? Colors.green
+                          : Colors.red,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
@@ -243,12 +244,12 @@ class _HomeRouteState extends State<HomeRoute> {
         ),
         RichText(
           text: TextSpan(
-            text: h.extractCountry(selectedServer!.address)?.toUpperCase(),
+            text: h.extractCountry(_selectedServer!.address)?.toUpperCase(),
             style: const TextStyle(color: Colors.grey, fontSize: 32),
             children: [
               TextSpan(
                   text:
-                      " / ${localizedCity[h.extractCity(selectedServer!.address)]}",
+                      " / ${_localizedCity[h.extractCity(_selectedServer!.address)]}",
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.onBackground))
             ],
@@ -261,13 +262,13 @@ class _HomeRouteState extends State<HomeRoute> {
               width: 24,
               height: 16,
               child: Flag.fromString(
-                h.extractCountry(selectedServer!.address).toString(),
+                h.extractCountry(_selectedServer!.address).toString(),
                 borderRadius: 4,
               ),
             ),
             const SizedBox(width: 4),
             Text(
-              selectedServer!.address,
+              _selectedServer!.address,
               style: GoogleFonts.robotoMono().copyWith(
                 fontSize: 20,
               ),
@@ -289,7 +290,7 @@ class _HomeRouteState extends State<HomeRoute> {
 
   List<Widget> _bottomSectionWidgets() {
     return [
-      if (settingsProvider.serviceState == ServiceState.disconnected)
+      if (_settingsProvider.serviceState == ServiceState.disconnected)
         SizedBox(
           width: 200,
           child: OutlinedButton(
@@ -299,7 +300,7 @@ class _HomeRouteState extends State<HomeRoute> {
                   barrierDismissible: false,
                   context: context,
                   builder: (_) =>
-                      LoadingDialog(title: localizations.loadingServerList));
+                      LoadingDialog(title: _localizations.loadingServerList));
 
               final List<ServerInfo> servers = await Future.delayed(
                   const Duration(seconds: 2),
@@ -334,38 +335,38 @@ class _HomeRouteState extends State<HomeRoute> {
               if (!context.mounted || selectedExit == null) {
                 return;
               }
-              settingsProvider.setSelectedServer(selectedExit);
+              _settingsProvider.setSelectedServer(selectedExit);
             },
-            child: Text(localizations.changeLocation),
+            child: Text(_localizations.changeLocation),
           ),
         ),
       const SizedBox(height: 8),
-      if (settingsProvider.serviceState == ServiceState.disconnected)
+      if (_settingsProvider.serviceState == ServiceState.disconnected)
         SizedBox(
           width: 200,
           child: ElevatedButton(
             onPressed: () async {
-              if (selectedServer == null) return;
+              if (_selectedServer == null) return;
               await ConnectionManager.connect(context);
             },
             style: const ButtonStyle(
                 backgroundColor: MaterialStatePropertyAll(Colors.green),
                 foregroundColor: MaterialStatePropertyAll(Colors.white)),
-            child: Text(localizations.connect),
+            child: Text(_localizations.connect),
           ),
         ),
-      if (settingsProvider.serviceState == ServiceState.connected)
+      if (_settingsProvider.serviceState == ServiceState.connected)
         SizedBox(
           width: 200,
           child: ElevatedButton(
             onPressed: () async {
-              if (selectedServer == null) return;
+              if (_selectedServer == null) return;
               await ConnectionManager.disconnect(context);
             },
             style: const ButtonStyle(
                 backgroundColor: MaterialStatePropertyAll(Colors.red),
                 foregroundColor: MaterialStatePropertyAll(Colors.white)),
-            child: Text(localizations.disconnect),
+            child: Text(_localizations.disconnect),
           ),
         ),
     ];

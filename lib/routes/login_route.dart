@@ -17,15 +17,15 @@ class LoginRoute extends StatefulWidget {
 }
 
 class _LoginRouteState extends State<LoginRoute> {
-  final usernameFieldController = TextEditingController();
-  final passwordFieldController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
-  late AppLocalizations localizations;
+  final _usernameFieldController = TextEditingController();
+  final _passwordFieldController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  late AppLocalizations _localizations;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    localizations = AppLocalizations.of(context)!;
+    _localizations = AppLocalizations.of(context)!;
   }
 
   @override
@@ -41,7 +41,7 @@ class _LoginRouteState extends State<LoginRoute> {
             child: SizedBox(
               width: 300,
               child: Form(
-                key: formKey,
+                key: _formKey,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -56,9 +56,9 @@ class _LoginRouteState extends State<LoginRoute> {
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
-                      controller: usernameFieldController,
+                      controller: _usernameFieldController,
                       decoration: InputDecoration(
-                        label: Text(localizations.username),
+                        label: Text(_localizations.username),
                       ),
                       validator: (value) {
                         return (value == null || value.isEmpty)
@@ -68,9 +68,9 @@ class _LoginRouteState extends State<LoginRoute> {
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
-                      controller: passwordFieldController,
+                      controller: _passwordFieldController,
                       decoration: InputDecoration(
-                        label: Text(localizations.password),
+                        label: Text(_localizations.password),
                       ),
                       validator: (value) {
                         return (value == null || value.isEmpty)
@@ -81,13 +81,13 @@ class _LoginRouteState extends State<LoginRoute> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () async {
-                        if (!formKey.currentState!.validate()) return;
+                        if (!_formKey.currentState!.validate()) return;
 
                         showDialog(
                           barrierDismissible: false,
                           context: context,
                           builder: (_) =>
-                              LoadingDialog(title: localizations.loading),
+                              LoadingDialog(title: _localizations.loading),
                         );
 
                         // ignore: unused_local_variable
@@ -97,8 +97,8 @@ class _LoginRouteState extends State<LoginRoute> {
                         if (!context.mounted) return;
                         Navigator.pop(context);
                         final account = AccountData(
-                            username: usernameFieldController.text,
-                            password: passwordFieldController.text);
+                            username: _usernameFieldController.text,
+                            password: _passwordFieldController.text);
 
                         context
                             .read<SettingsProvider>()
@@ -109,7 +109,7 @@ class _LoginRouteState extends State<LoginRoute> {
                             MaterialPageRoute(
                                 builder: (_) => const LandingRoute()));
                       },
-                      child: Text(localizations.logInBlurb),
+                      child: Text(_localizations.logInBlurb),
                     ),
                     const SizedBox(height: 16),
                     OutlinedButton(
@@ -137,14 +137,14 @@ class _LoginRouteState extends State<LoginRoute> {
                           showDialog(
                             context: context,
                             builder: (_) => AlertDialog(
-                              title: Text(localizations.registerFailedTitle),
-                              content: Text(localizations.registerFailedBlurb),
+                              title: Text(_localizations.registerFailedTitle),
+                              content: Text(_localizations.registerFailedBlurb),
                               actions: [
                                 TextButton(
                                   onPressed: () {
                                     Navigator.pop(context);
                                   },
-                                  child: Text(localizations.ok),
+                                  child: Text(_localizations.ok),
                                 ),
                               ],
                             ),
@@ -158,7 +158,7 @@ class _LoginRouteState extends State<LoginRoute> {
                             MaterialPageRoute(
                                 builder: (_) => const LandingRoute()));
                       },
-                      child: Text(localizations.registerBlurb),
+                      child: Text(_localizations.registerBlurb),
                     ),
                   ],
                 ),

@@ -11,17 +11,17 @@ class StatsRoute extends StatefulWidget {
 }
 
 class _StatsRouteState extends State<StatsRoute> {
-  late AppLocalizations localizations;
-  double downloadAmount = 0;
-  double uploadAmount = 0;
-  int latency = 0;
-  String viaString = "0.0.0.0:0000";
-  String protocolString = "_";
+  late AppLocalizations _localizations;
+  final double _downloadAmount = 0;
+  final double _uploadAmount = 0;
+  final int _latency = 0;
+  final String _viaString = "0.0.0.0:0000";
+  final String _protocolString = "_";
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    localizations = AppLocalizations.of(context)!;
+    _localizations = AppLocalizations.of(context)!;
   }
 
   @override
@@ -64,45 +64,45 @@ class _StatsRouteState extends State<StatsRoute> {
             ListTile(
               dense: true,
               leading: const Icon(Icons.download),
-              title: Text(localizations.download),
+              title: Text(_localizations.download),
               trailing: Text(
-                "$downloadAmount MB",
+                "$_downloadAmount MB",
                 style: statStyle.copyWith(color: Colors.blue),
               ),
             ),
             ListTile(
               dense: true,
               leading: const Icon(Icons.upload),
-              title: Text(localizations.upload),
+              title: Text(_localizations.upload),
               trailing: Text(
-                "$uploadAmount MB",
+                "$_uploadAmount MB",
                 style: statStyle.copyWith(color: Colors.red),
               ),
             ),
             ListTile(
               dense: true,
               leading: const Icon(Icons.swap_vert),
-              title: Text(localizations.latency),
+              title: Text(_localizations.latency),
               trailing: Text(
-                "$latency ms",
+                "$_latency ms",
                 style: statStyle,
               ),
             ),
             ListTile(
               dense: true,
               leading: const Icon(Icons.cable),
-              title: Text(localizations.via),
+              title: Text(_localizations.via),
               trailing: Text(
-                viaString,
+                _viaString,
                 style: statStyle,
               ),
             ),
             ListTile(
               dense: true,
               leading: const Icon(Icons.lan),
-              title: Text(localizations.protocol),
+              title: Text(_localizations.protocol),
               trailing: Text(
-                protocolString,
+                _protocolString,
                 style: statStyle,
               ),
             ),

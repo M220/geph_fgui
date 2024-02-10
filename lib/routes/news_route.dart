@@ -17,14 +17,15 @@ class NewsRoute extends StatefulWidget {
 }
 
 class _NewsRouteState extends State<NewsRoute> {
-  late AppLocalizations localizations;
-  late final settingsProvider = context.watch<SettingsProvider>();
+  // ignore: unused_field
+  late AppLocalizations _localizations;
+  late final _settingsProvider = context.watch<SettingsProvider>();
   TextStyle? _newsBodyStyle;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    localizations = AppLocalizations.of(context)!;
+    _localizations = AppLocalizations.of(context)!;
     _newsBodyStyle = Theme.of(context).textTheme.bodySmall;
     final settingsRead = context.read<SettingsProvider>();
     if (settingsRead.newNewsAvailable) {
@@ -43,10 +44,10 @@ class _NewsRouteState extends State<NewsRoute> {
         if (snapshot.hasData && snapshot.data != null) {
           return newsListFromXmlString(snapshot.data!);
         } else {
-          if (settingsProvider.newsLoadedNumber == 0) {
+          if (_settingsProvider.newsLoadedNumber == 0) {
             return const Center(child: CircularProgressIndicator());
           } else {
-            return newsListFromXmlString(settingsProvider.rssFeed);
+            return newsListFromXmlString(_settingsProvider.rssFeed);
           }
         }
       },
@@ -55,9 +56,9 @@ class _NewsRouteState extends State<NewsRoute> {
 
   Widget newsListFromXmlString(String input) {
     final news = XmlDocument.parse(input).findAllElements("item").toList();
-    if (news.length > settingsProvider.newsLoadedNumber) {
-      settingsProvider.setRssFeed(input);
-      settingsProvider.setNewsLoadedNumber(news.length);
+    if (news.length > _settingsProvider.newsLoadedNumber) {
+      _settingsProvider.setRssFeed(input);
+      _settingsProvider.setNewsLoadedNumber(news.length);
     }
 
     return ListView.builder(
