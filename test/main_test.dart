@@ -52,7 +52,11 @@ void main() {
       );
 
       await widgetTester.pumpWidget(bodyWidget);
-      await widgetTester.pump();
+      await widgetTester.pumpAndSettle();
+      // TODO: Added for now because of the fake auto server selection,
+      // should be removed in the future.
+      await Future.delayed(const Duration(seconds: 5));
+      await widgetTester.pumpAndSettle();
       expect(find.byType(LandingRoute), findsOne);
       settings.dispose();
     });
