@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:geph_fgui/data/account_data.dart';
 import 'package:geph_fgui/providers/settings_provider.dart';
+import 'package:geph_fgui/routes/login_route.dart';
 import 'package:geph_fgui/routes/settings_route.dart';
+import 'package:geph_fgui/widgets/delete_account_dialog.dart';
 import 'package:geph_fgui/widgets/language_dialog.dart';
+import 'package:geph_fgui/widgets/loading_dialog.dart';
 import 'package:geph_fgui/widgets/protocol_dialog.dart';
 import 'package:geph_fgui/widgets/routing_mode_dialog.dart';
 import 'package:geph_fgui/widgets/theme_mode_dialog.dart';
@@ -226,6 +230,141 @@ void main() {
       await widgetTester.tap(find.widgetWithText(TextButton, localizations.ok));
       await widgetTester.pumpAndSettle();
       expect(settings.themeMode, ThemeMode.system);
+
+      settings.dispose();
+    });
+  });
+
+  testWidgets("logout works", (widgetTester) async {
+    await widgetTester.runAsync(() async {
+      late AppLocalizations localizations;
+      SharedPreferences.setMockInitialValues({});
+      final settings = await SettingsProvider.instance();
+      final bodyWidget = MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(builder: (context) {
+          return Scaffold(
+            body: ElevatedButton(
+              onPressed: () async {
+                localizations = AppLocalizations.of(context)!;
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => ChangeNotifierProvider.value(
+                            value: settings,
+                            child: const Scaffold(body: SettingsRoute()))));
+              },
+              child: const Text("Hit"),
+            ),
+          );
+        }),
+      );
+
+      const mockUsername = "mockUsername";
+      const mockPassword = "mockPassword";
+      const mockAccount =
+          AccountData(username: mockUsername, password: mockPassword);
+      await settings.setAccountData(mockAccount);
+
+      await widgetTester.pumpWidget(bodyWidget);
+      await widgetTester.pumpAndSettle();
+      await widgetTester.tap(find.byType(ElevatedButton));
+      await widgetTester.pumpAndSettle();
+
+      final findLogoutButton =
+          find.widgetWithText(OutlinedButton, localizations.logout);
+
+      await widgetTester.scrollUntilVisible(findLogoutButton, 100);
+      await widgetTester.ensureVisible(findLogoutButton);
+      await widgetTester.pumpAndSettle();
+      await widgetTester.tap(findLogoutButton);
+      await widgetTester.pump();
+      expect(find.byType(LoadingDialog), findsOne);
+      expect(find.text(localizations.loggingOut), findsOne);
+      await Future.delayed(const Duration(seconds: 5));
+      await widgetTester.pumpAndSettle();
+      expect(find.byType(LoadingDialog), findsNothing);
+      expect(find.byType(LoginRoute), findsOne);
+      expect(settings.accountData, null);
+
+      settings.dispose();
+    });
+  });
+
+  testWidgets("deleteAccount works", (widgetTester) async {
+    await widgetTester.runAsync(() async {
+      late AppLocalizations localizations;
+      SharedPreferences.setMockInitialValues({});
+      final settings = await SettingsProvider.instance();
+      final bodyWidget = MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(builder: (context) {
+          return Scaffold(
+            body: ElevatedButton(
+              onPressed: () async {
+                localizations = AppLocalizations.of(context)!;
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => ChangeNotifierProvider.value(
+                            value: settings,
+                            child: const Scaffold(body: SettingsRoute()))));
+              },
+              child: const Text("Hit"),
+            ),
+          );
+        }),
+      );
+
+      const mockUsername = "mockUsername";
+      const mockPassword = "mockPassword";
+      const mockAccount =
+          AccountData(username: mockUsername, password: mockPassword);
+      await settings.setAccountData(mockAccount);
+
+      await widgetTester.pumpWidget(bodyWidget);
+      await widgetTester.pumpAndSettle();
+      await widgetTester.tap(find.byType(ElevatedButton));
+      await widgetTester.pumpAndSettle();
+
+      final findDeleteButton =
+          find.widgetWithText(TextButton, localizations.delete);
+      final findOkButton = find.widgetWithText(TextButton, localizations.ok);
+      final findCancelButton =
+          find.widgetWithText(TextButton, localizations.cancel);
+      final offStageWidget = find.byWidget(bodyWidget, skipOffstage: false);
+
+      await widgetTester.scrollUntilVisible(findDeleteButton, 100);
+      await widgetTester.ensureVisible(findDeleteButton);
+      await widgetTester.pumpAndSettle();
+      await widgetTester.tap(findDeleteButton);
+      await widgetTester.pump();
+      expect(find.byType(DeleteAccountDialog), findsOne);
+      await widgetTester.tapAt(widgetTester.getTopLeft(offStageWidget));
+      await widgetTester.pumpAndSettle();
+      expect(find.byType(DeleteAccountDialog), findsNothing);
+      expect(settings.accountData, mockAccount);
+
+      await widgetTester.tap(findDeleteButton);
+      await widgetTester.pump();
+      await widgetTester.tap(findCancelButton);
+      await widgetTester.pumpAndSettle();
+      expect(find.byType(DeleteAccountDialog), findsNothing);
+      expect(settings.accountData, mockAccount);
+
+      await widgetTester.tap(findDeleteButton);
+      await widgetTester.pump();
+      await widgetTester.tap(findOkButton);
+      await widgetTester.pump();
+      expect(find.byType(LoadingDialog), findsOne);
+      expect(find.text(localizations.deletingAccount), findsOne);
+      await Future.delayed(const Duration(seconds: 5));
+      await widgetTester.pumpAndSettle();
+      expect(find.byType(LoadingDialog), findsNothing);
+      expect(find.byType(LoginRoute), findsOne);
+      expect(settings.accountData, null);
 
       settings.dispose();
     });

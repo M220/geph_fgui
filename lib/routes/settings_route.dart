@@ -129,11 +129,12 @@ class _SettingsRouteState extends State<SettingsRoute> {
         //TODO: Do cleanup here.
         await Future.delayed(const Duration(seconds: 2));
 
+        await settingsProvider.logout();
+
         if (!context.mounted) return;
+        Navigator.pop(context);
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (_) => const LoginRoute()));
-
-        await settingsProvider.logout();
       },
       child: Text(
         localizations.logout,
@@ -155,7 +156,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
       onPressed: () async {
         final bool? confirmed = await showDialog(
             context: context, builder: (_) => const DeleteAccountDialog());
-        if (!context.mounted || confirmed == null) return;
+        if (!context.mounted || confirmed != true) return;
 
         showDialog(
             barrierDismissible: false,
