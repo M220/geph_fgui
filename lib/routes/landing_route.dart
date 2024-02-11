@@ -19,25 +19,18 @@ class LandingRoute extends StatefulWidget {
 
 class _LandingRouteState extends State<LandingRoute>
     with SingleTickerProviderStateMixin {
-  late final settingsProvider = context.watch<SettingsProvider>();
+  late final _settingsProvider = context.watch<SettingsProvider>();
   late final _tabController = TabController(length: 4, vsync: this);
-  late AppLocalizations localizations;
+  late AppLocalizations _localizations;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    localizations = AppLocalizations.of(context)!;
+    _localizations = AppLocalizations.of(context)!;
     final settingsRead = context.read<SettingsProvider>();
     if (!settingsRead.lastNewsFetched) {
-      RssManager.getRss(context).then((value) {
-        final fetchedNewsLength =
-            XmlDocument.parse(value).findAllElements("item").toList().length;
-        if (settingsRead.newsLoadedNumber < fetchedNewsLength) {
-          setState(() {
-            settingsRead.setNewNewsAvailable(true);
-          });
-        }
-        settingsRead.setLastNewsFetched(true);
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+        await settingsRead.fetchNewRss(context);
       });
     }
   }
@@ -47,18 +40,18 @@ class _LandingRouteState extends State<LandingRoute>
     return SafeArea(
       child: Scaffold(
         bottomNavigationBar: TabBar(controller: _tabController, tabs: [
-          Tab(icon: const Icon(Icons.home_rounded), text: localizations.home),
+          Tab(icon: const Icon(Icons.home_rounded), text: _localizations.home),
           Tab(
             icon: Icon(
               Icons.notifications_rounded,
-              color: settingsProvider.newNewsAvailable ? Colors.red : null,
+              color: _settingsProvider.newNewsAvailable ? Colors.red : null,
             ),
-            text: localizations.news,
+            text: _localizations.news,
           ),
-          Tab(icon: const Icon(Icons.data_object), text: localizations.stats),
+          Tab(icon: const Icon(Icons.data_object), text: _localizations.stats),
           Tab(
               icon: const Icon(Icons.settings_rounded),
-              text: localizations.settings),
+              text: _localizations.settings),
         ]),
         body: TabBarView(
           controller: _tabController,

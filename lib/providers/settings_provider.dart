@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:geph_fgui/rss/rss_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,7 +23,6 @@ const String _selectedServerAddressKey = "selectedServerAddress";
 const String _selectedServerP2PAllowedKey = "selectedServerP2PAllowed";
 const String _selectedServerPlusKey = "selectedServerPlus";
 const String _excludedAppsListKey = "excludedAppsList";
-const String _newsLoadedNumberKey = "newsLoadedNumber";
 const String _rssFileName = "rss.txt";
 const String _logFileName = "log.txt";
 const String _binaryInstalledKey = "binaryInstalled";
@@ -67,8 +67,7 @@ class SettingsProvider extends ChangeNotifier {
   Protocol get protocol => _protocol;
   AccountData? get accountData => _accountData;
   ServerInfo? get selectedServer => _selectedServer;
-  int get newsLoadedNumber => _newsLoadedNumber;
-  String get rssFeed => _rssFeed;
+  String? get rssFeed => _rssFeed;
   bool get lastNewsFetched => _lastNewsFetched;
   bool get newNewsAvailable => _newNewsAvailable;
   String get log => _log;
@@ -87,8 +86,7 @@ class SettingsProvider extends ChangeNotifier {
   Protocol _protocol = Protocol.auto;
   AccountData? _accountData;
   ServerInfo? _selectedServer;
-  int _newsLoadedNumber = 0;
-  String _rssFeed = "";
+  String? _rssFeed;
   bool _lastNewsFetched = false;
   bool _newNewsAvailable = false;
   String _log = "";
@@ -128,8 +126,6 @@ class SettingsProvider extends ChangeNotifier {
     _listenAllInterfaces =
         _sharedPreferences.getBool(_listenAllInterfacesKey) ??
             _listenAllInterfaces;
-    _newsLoadedNumber =
-        _sharedPreferences.getInt(_newsLoadedNumberKey) ?? _newsLoadedNumber;
     _binaryInstalled =
         _sharedPreferences.getBool(_binaryInstalledKey) ?? _binaryInstalled;
     _accountData = _getAccountData();
@@ -140,8 +136,7 @@ class SettingsProvider extends ChangeNotifier {
     _protocol = _getProtocol();
     _themeMode = _getThemeMode();
     _locale = _getLocale();
-    _rssFile = await _getRssFile();
-    _rssFeed = await _getRssFeed();
+    await _initRssFile();
     _exportPath = await _getExportPath();
 
     _serviceState = _getServiceState();
@@ -236,7 +231,7 @@ class SettingsProvider extends ChangeNotifier {
     return response;
   }
 
-  Future<File> _getRssFile() async {
+  Future<void> _initRssFile() async {
     final String rssPath;
     if (Platform.isWindows) {
       rssPath = "\\$_rssFileName";
@@ -245,15 +240,12 @@ class SettingsProvider extends ChangeNotifier {
     }
 
     final docDirectory = await getApplicationSupportDirectory();
-    return File(docDirectory.path + rssPath);
-  }
 
-  Future<String> _getRssFeed() async {
+    _rssFile = File(docDirectory.path + rssPath);
+
     if (!await _rssFile.exists()) {
-      await _rssFile.writeAsString("<root></root>", flush: true);
+      await _rssFile.writeAsString("<root></root>");
     }
-    final rssContent = await _rssFile.readAsString();
-    return rssContent;
   }
 
   Future<String> _getExportPath() async {
@@ -390,20 +382,29 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setNewsLoadedNumber(int value) async {
-    await _sharedPreferences.setInt(_newsLoadedNumberKey, value);
-    _newsLoadedNumber = value;
+  // Might throw if fetching RSS is not successful.
+  Future<void> fetchNewRss(BuildContext context) async {
+    _rssFeed = null;
     notifyListeners();
-  }
-
-  Future<void> setRssFeed(String value) async {
-    _rssFeed = value;
-    await _writeRssFile();
-    notifyListeners();
+    if (!context.mounted) return;
+    try {
+      _rssFeed = await RssManager.getRss(context);
+      if (_rssFeed != await _rssFile.readAsString()) {
+        await _writeRssFile();
+        setNewNewsAvailable(true);
+      }
+      setLastNewsFetched(true);
+    } catch (e) {
+      _rssFeed = await _rssFile.readAsString();
+      rethrow;
+    } finally {
+      notifyListeners();
+    }
   }
 
   Future<void> _writeRssFile() async {
-    await _rssFile.writeAsString(_rssFeed, flush: true);
+    if (_rssFeed == null) return;
+    await _rssFile.writeAsString(_rssFeed!, flush: true);
   }
 
   Future<void> setThemeMode(ThemeMode value) async {

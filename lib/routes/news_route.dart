@@ -7,7 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:xml/xml.dart';
 
 import '../providers/settings_provider.dart';
-import '../rss/rss_manager.dart';
+
+List<Card> _newsCards = [];
 
 class NewsRoute extends StatefulWidget {
   const NewsRoute({super.key});
@@ -29,56 +30,70 @@ class _NewsRouteState extends State<NewsRoute> {
     _newsBodyStyle = Theme.of(context).textTheme.bodySmall;
     final settingsRead = context.read<SettingsProvider>();
     if (settingsRead.newNewsAvailable) {
-      Future.delayed(const Duration(seconds: 1), () {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         settingsRead.setNewNewsAvailable(false);
+      });
+    }
+    if (settingsRead.rssFeed != null) {
+      setState(() {
+        updateNewsListFromXml(settingsRead.rssFeed!);
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      // TODO: The future should be the loading of the real, newer news.
-      future: RssManager.getRss(context),
-      builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data != null) {
-          return newsListFromXmlString(snapshot.data!);
-        } else {
-          if (_settingsProvider.newsLoadedNumber == 0) {
-            return const Center(child: CircularProgressIndicator());
-          } else {
-            return newsListFromXmlString(_settingsProvider.rssFeed);
-          }
+    if (_settingsProvider.rssFeed == null) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+    if (_newsCards.isEmpty) {
+      updateNewsListFromXml(_settingsProvider.rssFeed!);
+    }
+    return RefreshIndicator(
+      onRefresh: () async {
+        try {
+          await _settingsProvider.fetchNewRss(context);
+          setState(() {
+            updateNewsListFromXml(_settingsProvider.rssFeed!);
+          });
+        } catch (e) {
+          if (!context.mounted) return;
+          ScaffoldMessenger.of(context)
+            ..clearSnackBars()
+            ..showSnackBar(const SnackBar(
+                content:
+                    Text("Error encountered when fetching the latest news. "
+                        "Please try again later")));
         }
       },
+      child: ListView(
+        key: const PageStorageKey("News"),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        children: _newsCards,
+      ),
     );
   }
 
-  Widget newsListFromXmlString(String input) {
+  void updateNewsListFromXml(String input) {
+    _newsCards = [];
     final news = XmlDocument.parse(input).findAllElements("item").toList();
-    if (news.length > _settingsProvider.newsLoadedNumber) {
-      _settingsProvider.setRssFeed(input);
-      _settingsProvider.setNewsLoadedNumber(news.length);
-    }
-
-    return ListView.builder(
-      key: const PageStorageKey("News"),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      itemCount: news.length,
-      itemBuilder: (context, index) {
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: RichText(
-              text: TextSpan(
-                style: _newsBodyStyle,
-                children: buildNewsText(news[index]),
-              ),
+    for (final item in news) {
+      final card = Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: RichText(
+            text: TextSpan(
+              style: _newsBodyStyle,
+              children: buildNewsText(item),
             ),
           ),
-        );
-      },
-    );
+        ),
+      );
+
+      _newsCards.add(card);
+    }
   }
 
   List<TextSpan> buildNewsText(XmlElement input) {

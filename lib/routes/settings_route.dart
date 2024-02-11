@@ -533,7 +533,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
           Text(" by"),
         ],
       )),
-      const Center(child: Text("@nullchincilla / Gephyra OU")),
+      const Center(child: Text("@nullchinchilla / Gephyra OU")),
     ];
   }
 }
