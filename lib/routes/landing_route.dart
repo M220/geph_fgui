@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:xml/xml.dart';
-
-import '../rss/rss_manager.dart';
 import '../providers/settings_provider.dart';
 import '../routes/home_route.dart';
 import '../routes/news_route.dart';
@@ -29,8 +26,10 @@ class _LandingRouteState extends State<LandingRoute>
     _localizations = AppLocalizations.of(context)!;
     final settingsRead = context.read<SettingsProvider>();
     if (!settingsRead.lastNewsFetched) {
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-        await settingsRead.fetchNewRss(context);
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        try {
+          await settingsRead.fetchNewRss(context);
+        } catch (_) {}
       });
     }
   }

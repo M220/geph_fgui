@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flag/flag.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../interfaces/connection_manager.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/address_localization_helper.dart' as h;
 import '../data/server_info.dart';
 import '../providers/settings_provider.dart';
+import '../interfaces/connection_manager.dart';
 import '../routes/server_selection_route.dart';
 import '../widgets/loading_dialog.dart';
 import '../constants.dart';
@@ -147,10 +146,10 @@ class _HomeRouteState extends State<HomeRoute> {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           child: Text(
             _localizations.plusServer,
-            style: GoogleFonts.roboto().copyWith(
-              fontSize: 16,
-              color: Colors.purpleAccent,
-            ),
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontSize: 16,
+                  color: Colors.purpleAccent,
+                ),
           ),
         ),
       );
@@ -166,10 +165,10 @@ class _HomeRouteState extends State<HomeRoute> {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           child: Text(
             _localizations.freeServer,
-            style: GoogleFonts.roboto().copyWith(
-              fontSize: 16,
-              color: Colors.green,
-            ),
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontSize: 16,
+                  color: Colors.green,
+                ),
           ),
         ),
       );
@@ -185,10 +184,10 @@ class _HomeRouteState extends State<HomeRoute> {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           child: Text(
             _localizations.p2pYes,
-            style: GoogleFonts.roboto().copyWith(
-              fontSize: 16,
-              color: Colors.green,
-            ),
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontSize: 16,
+                  color: Colors.green,
+                ),
           ),
         ),
       );
@@ -204,10 +203,10 @@ class _HomeRouteState extends State<HomeRoute> {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           child: Text(
             _localizations.p2pNo,
-            style: GoogleFonts.roboto().copyWith(
-              fontSize: 16,
-              color: Colors.red,
-            ),
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontSize: 16,
+                  color: Colors.red,
+                ),
           ),
         ),
       );
@@ -269,9 +268,9 @@ class _HomeRouteState extends State<HomeRoute> {
             const SizedBox(width: 4),
             Text(
               _selectedServer!.address,
-              style: GoogleFonts.robotoMono().copyWith(
-                fontSize: 20,
-              ),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontSize: 20,
+                  ),
             ),
           ],
         ),

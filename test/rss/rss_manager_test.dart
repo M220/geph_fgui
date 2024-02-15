@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geph_fgui/rss/rss_manager.dart';
 
 void main() {
-  testWidgets("dialog's widgets are as expected", (widgetTester) async {
+  testWidgets("RssManager works as expected", (widgetTester) async {
     late String rssFileString;
     late String rssOutput;
 
@@ -24,7 +24,7 @@ void main() {
     await widgetTester.pumpWidget(bodyWidget);
     await widgetTester.pumpAndSettle();
     await widgetTester.tap(find.byType(ElevatedButton));
-    await widgetTester.pumpAndSettle();
+    await widgetTester.pumpAndSettle(const Duration(seconds: 5));
 
     expect(rssFileString, rssOutput);
   });

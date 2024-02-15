@@ -63,7 +63,7 @@ void main() {
       expect(settings.locale, null);
       expect(settings.themeMode, ThemeMode.system);
       expect(settings.log, "");
-      expect(settings.rssFeed, "");
+      expect(settings.rssFeed, null);
       expect(settings.protocol, Protocol.auto);
       expect(settings.autoProxy, true);
       expect(settings.networkVPN, false);
@@ -76,7 +76,6 @@ void main() {
       expect(settings.lastNewsFetched, false);
       expect(settings.binaryInstalled, false);
       expect(settings.excludedAppsList, List.empty());
-      expect(settings.newsLoadedNumber, 0);
       expect(settings.newNewsAvailable, false);
 
       final docPath = await getApplicationDocumentsDirectory();
@@ -394,20 +393,6 @@ void main() {
       settings.dispose();
     });
 
-    test('setNewsLoadedNumber works', () async {
-      SharedPreferences.setMockInitialValues({});
-      var settings = await SettingsProvider.instance();
-      expect(settings.newsLoadedNumber, 0);
-
-      await settings.setNewsLoadedNumber(10);
-      expect(settings.newsLoadedNumber, 10);
-      settings.dispose();
-      settings = await SettingsProvider.instance();
-      expect(settings.newsLoadedNumber, 10);
-
-      settings.dispose();
-    });
-
     test('setNewNewsAvailable works', () async {
       SharedPreferences.setMockInitialValues({});
       final settings = await SettingsProvider.instance();
@@ -418,21 +403,6 @@ void main() {
 
       settings.setNewNewsAvailable(false);
       expect(settings.newNewsAvailable, false);
-
-      settings.dispose();
-    });
-
-    test('setRssFeed works', () async {
-      SharedPreferences.setMockInitialValues({});
-      var settings = await SettingsProvider.instance();
-      const mockData = "Mock data";
-      expect(settings.rssFeed, "");
-
-      await settings.setRssFeed(mockData);
-      expect(settings.rssFeed, mockData);
-      settings.dispose();
-      settings = await SettingsProvider.instance();
-      expect(settings.rssFeed, mockData);
 
       settings.dispose();
     });

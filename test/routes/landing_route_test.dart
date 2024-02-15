@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:geph_fgui/data/server_info.dart';
 import 'package:geph_fgui/routes/home_route.dart';
 import 'package:geph_fgui/routes/landing_route.dart';
 import 'package:geph_fgui/routes/news_route.dart';
@@ -21,9 +22,11 @@ void main() {
     late AppLocalizations localizations;
     SharedPreferences.setMockInitialValues({});
     late final SettingsProvider settings;
+
     await widgetTester.runAsync(() async {
       settings = await SettingsProvider.instance();
     });
+
     final bodyWidget = MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
@@ -43,9 +46,20 @@ void main() {
         );
       }),
     );
+
+    // LandingRoute would start fetching the news if this is not set to true,
+    // and that is not what we're testing here. It would start a timer that would
+    // interfere with the current test.
     settings.setLastNewsFetched(true);
+    // Set the selected server so that the HomeRoute, which LandingRoute starts with,
+    // doesn't start automatically fetching and selecting servers, creating a timer and
+    // interfering with the current test.
+    const mockServer =
+        ServerInfo(address: "cz-prg-101.geph.io", plus: true, p2pAllowed: true);
+    await settings.setSelectedServer(mockServer);
+
     await widgetTester.pumpWidget(bodyWidget);
-    await widgetTester.pumpAndSettle();
+    await widgetTester.pump();
     await widgetTester.tap(find.byType(ElevatedButton));
     await widgetTester.pumpAndSettle();
 
@@ -69,8 +83,10 @@ void main() {
     expect(find.byType(HomeRoute), findsOne);
 
     await widgetTester.tap(find.byIcon(Icons.notifications_rounded));
-    await widgetTester.pumpAndSettle();
+    // We can't pumpAndSettle here because of the infinite CircularProgressIndicator animation, so we use pumpFrames instead.
+    await widgetTester.pumpFrames(bodyWidget, const Duration(seconds: 1));
     expect(find.byType(NewsRoute), findsOne);
+    expect(find.byType(CircularProgressIndicator), findsOne);
 
     await widgetTester.tap(find.byIcon(Icons.data_object));
     await widgetTester.pumpAndSettle();

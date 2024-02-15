@@ -116,6 +116,7 @@ class SettingsProvider extends ChangeNotifier {
     if (_instance != null) return;
     _sharedPreferences = sp ?? await SharedPreferences.getInstance();
 
+    await _ensureNeededDirectoriesExist();
     _networkVPN = _sharedPreferences.getBool(_networkVPNKey) ?? _networkVPN;
     _excludePRC = _sharedPreferences.getBool(_excludePRCKey) ?? _excludePRC;
     _autoProxy = _sharedPreferences.getBool(_autoProxyKey) ?? _autoProxy;
@@ -140,6 +141,13 @@ class SettingsProvider extends ChangeNotifier {
     _exportPath = await _getExportPath();
 
     _serviceState = _getServiceState();
+  }
+
+  Future<void> _ensureNeededDirectoriesExist() async {
+    final supportDir = await getApplicationSupportDirectory();
+    final documentDir = await getApplicationDocumentsDirectory();
+    await supportDir.create(recursive: true);
+    await documentDir.create(recursive: true);
   }
 
   AccountData? _getAccountData() {
@@ -384,6 +392,7 @@ class SettingsProvider extends ChangeNotifier {
 
   // Might throw if fetching RSS is not successful.
   Future<void> fetchNewRss(BuildContext context) async {
+      if (!_lastNewsFetched) setLastNewsFetched(true);
     _rssFeed = null;
     notifyListeners();
     if (!context.mounted) return;
@@ -393,7 +402,6 @@ class SettingsProvider extends ChangeNotifier {
         await _writeRssFile();
         setNewNewsAvailable(true);
       }
-      setLastNewsFetched(true);
     } catch (e) {
       _rssFeed = await _rssFile.readAsString();
       rethrow;

@@ -37,27 +37,30 @@ void main() {
     settings.dispose();
   });
 
+  /// This test runs in Real-Async because of the fake timer that the
+  /// LandingRoute starts. TODO: Change this to run in Fake-Async in the future.
   testWidgets("MainApp loads correct first page: LandingRoute",
       (widgetTester) async {
-    SharedPreferences.setMockInitialValues({});
-    late final SettingsProvider settings;
     await widgetTester.runAsync(() async {
-      settings = await SettingsProvider.instance();
-    });
-    const mockUsername = "mockUsername";
-    const mockPassword = "mockPassword";
-    const mockAccount =
-        AccountData(username: mockUsername, password: mockPassword);
-    await settings.setAccountData(mockAccount);
-    final bodyWidget = ChangeNotifierProvider.value(
-      value: settings,
-      child: const MainApp(),
-    );
+      SharedPreferences.setMockInitialValues({});
+      late final SettingsProvider settings;
+      const mockUsername = "mockUsername";
+      const mockPassword = "mockPassword";
+      const mockAccount =
+          AccountData(username: mockUsername, password: mockPassword);
 
-    await widgetTester.pumpWidget(bodyWidget);
-    await widgetTester.pumpAndSettle(const Duration(seconds: 3));
-    expect(find.byType(LandingRoute), findsOne);
-    settings.dispose();
+      settings = await SettingsProvider.instance();
+      await settings.setAccountData(mockAccount);
+      final bodyWidget = ChangeNotifierProvider.value(
+        value: settings,
+        child: const MainApp(),
+      );
+
+      await widgetTester.pumpWidget(bodyWidget);
+      await widgetTester.pump();
+      expect(find.byType(LandingRoute), findsOne);
+      settings.dispose();
+    });
   });
 
   testWidgets("MainApp loads correct properties", (widgetTester) async {

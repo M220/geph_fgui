@@ -34,11 +34,6 @@ class _NewsRouteState extends State<NewsRoute> {
         settingsRead.setNewNewsAvailable(false);
       });
     }
-    if (settingsRead.rssFeed != null) {
-      setState(() {
-        updateNewsListFromXml(settingsRead.rssFeed!);
-      });
-    }
   }
 
   @override
@@ -48,16 +43,11 @@ class _NewsRouteState extends State<NewsRoute> {
         child: CircularProgressIndicator(),
       );
     }
-    if (_newsCards.isEmpty) {
-      updateNewsListFromXml(_settingsProvider.rssFeed!);
-    }
+    updateNewsListFromXml(_settingsProvider.rssFeed!);
     return RefreshIndicator(
       onRefresh: () async {
         try {
           await _settingsProvider.fetchNewRss(context);
-          setState(() {
-            updateNewsListFromXml(_settingsProvider.rssFeed!);
-          });
         } catch (e) {
           if (!context.mounted) return;
           ScaffoldMessenger.of(context)
@@ -77,7 +67,7 @@ class _NewsRouteState extends State<NewsRoute> {
   }
 
   void updateNewsListFromXml(String input) {
-    _newsCards = [];
+    _newsCards.clear();
     final news = XmlDocument.parse(input).findAllElements("item").toList();
     for (final item in news) {
       final card = Card(

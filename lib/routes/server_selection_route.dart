@@ -1,7 +1,6 @@
 import 'package:flag/flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../helpers/address_localization_helper.dart' as h;
 import '../data/server_info.dart';
@@ -115,10 +114,10 @@ class _ServerSelectionRouteState extends State<ServerSelectionRoute> {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         child: Text(
           chipText,
-          style: GoogleFonts.roboto().copyWith(
-            fontSize: 16,
-            color: chipColor,
-          ),
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontSize: 16,
+                color: chipColor,
+              ),
         ),
       ),
     );
@@ -141,10 +140,10 @@ class _ServerSelectionRouteState extends State<ServerSelectionRoute> {
           children: [
             Text(
               "%${e.rating!}",
-              style: GoogleFonts.roboto().copyWith(
-                fontSize: 16,
-                color: chipColor,
-              ),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontSize: 16,
+                    color: chipColor,
+                  ),
             ),
             const SizedBox(width: 4),
             Icon(Icons.network_cell, color: chipColor),
